@@ -46,6 +46,10 @@ class Direction {
     return rotate(4);
   }
 
+  public Coordinate asNormalizedCoordinate() {
+    return new Coordinate(direction.normalized()[0], direction.normalized()[1]);
+  }
+
   // Should be same as asDir
   //public Direction fromCoordinate(Coordinate coordinate) {
   //  Compass[] conversion = new Compass[]{
