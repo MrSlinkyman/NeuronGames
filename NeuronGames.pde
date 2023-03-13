@@ -59,39 +59,37 @@ void draw() {
   // are we in a generation?
   if (runMode == RunMode.RUN && generations < (int)Parameters.MAX_GENERATIONS.getValue()) {
     // are we in a simulation step?
+    int tempSteps = 0;
     if (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue()) {
-      // Loop through each individual in parallel
-      long startM = System.currentTimeMillis();
+      while (tempSteps++ < (int)Parameters.STEPS_PER_FRAME.getValue() && simStep < (int)Parameters.STEPS_PER_GENERATION.getValue()) {
+        //long startM = System.currentTimeMillis();
 
-      IntStream.range(0, theEnvironment.populationSize()).parallel().forEach(indivIndex -> {
-        //for (int indivIndex = 0; indivIndex < theEnvironment.populationSize(); indivIndex++) {
-        //if (indivIndex < theEnvironment.populationSize()) {
-        //ForkJoinPool pool = new ForkJoinPool(maxThreads);
-        //pool.submit(() ->
-        //if (indivIndex == 0)
-        if (theEnvironment.at(indivIndex) != null && theEnvironment.at(indivIndex).isAlive()) {
-          theEnvironment.at(indivIndex).simStepOneIndiv(simStep);
+        // Loop through each individual in parallel
+        IntStream.range(0, theEnvironment.populationSize()).parallel().forEach(indivIndex -> {
+          //for (int indivIndex = 0; indivIndex < theEnvironment.populationSize(); indivIndex++) {
+          //if (indivIndex < theEnvironment.populationSize()) {
+          if (theEnvironment.at(indivIndex) != null && theEnvironment.at(indivIndex).isAlive()) {
+            theEnvironment.at(indivIndex).simStepOneIndiv(simStep);
 
-          //theEnvironment.at(indivIndex).display();
+            //theEnvironment.at(indivIndex).display();
+          }
         }
-      }
-      );
-      long endM = System.currentTimeMillis();
-      //System.out.printf("SimStep took %d millis\n", (endM - startM));
-      display();
-      //indivIndex++;
-      //} else {
-      //  indivIndex = 0;
-      //);
-      //).join();
+        );
+        //long endM = System.currentTimeMillis();
+        //System.out.printf("SimStep took %d millis\n", (endM - startM));
+        display();
+        //} else {
+        //  indivIndex = 0;
+        //);
+        //).join();
 
-      // Single-threaded section: execute deferred deaths and movements,
-      // update signal layers (pheromone), etc.
-      murderCount.addAndGet(theEnvironment.deathQueueSize());
-      theEnvironment.endOfSimStep(simStep, generations);
+        // Single-threaded section: execute deferred deaths and movements,
+        // update signal layers (pheromone), etc.
+        murderCount.addAndGet(theEnvironment.deathQueueSize());
+        theEnvironment.endOfSimStep(simStep, generations);
+        simStep++;
+      }
       display();
-      simStep++;
-      //}
     } else {
       simStep = 0;
       int numberSurvivors = theEnvironment.endOfGeneration(generations);

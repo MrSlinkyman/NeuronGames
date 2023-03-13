@@ -33,7 +33,12 @@ into a balanced ecosystem.
 # Future enhancements
 I'll probably start capturing these as Issues or something but intially I want to do the following:
 * Moar Javadoc
-* File based configuration
+* File based configuration similar to biosim4.ini such that parameters can change throughout simulation.
 * Energy mechanics
 * More interesting visualizations such as visual indicators of parents that are actually used to spawn the next generation, more interesting creature designs
 like colors, genome inspired shapes, limbs for mobility as dictated by the sensors/actions, etc.
+* Modify the start to have selectable Challenge and Barrier types instead of forcing it to be enum based.
+* Support multiple Challenges at once
+* Currently only supprts a petri dish type world with walls, modify to support an infinite seeming world (boundaries portal to the opposite side)
+* Implement the other comparison methods
+* Support saving simulation steps as frames to eventually create a video of an interesting population.  Maybe even support saving the entire history of a population...could be memory hog!

@@ -327,8 +327,8 @@ class Grid {
 
     int sizeX = (int)Parameters.SIZE_X.getValue();
     int sizeY = (int)Parameters.SIZE_Y.getValue();
-    double xFactor = barrierType.getArg(0);
-    double yFactor = barrierType.getArg(1);
+    double xFactor = (barrierType.hasArgs()) ? barrierType.getArg(0) : 0;
+    double yFactor = (barrierType.hasArgs()) ? barrierType.getArg(1) : 0;
     switch(barrierType) {
     case NONE:
       // code for no barrier
