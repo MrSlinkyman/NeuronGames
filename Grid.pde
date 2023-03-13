@@ -96,224 +96,226 @@ class Grid {
           noStroke();
           fill(125);
 
-          switch(challenge) {
-          case CORNER_WEIGHTED:
-            {
-              int[] cornersX = {0, sizeX-1};
-              int[] cornersY = {0, sizeY-1};
-              double radius = (double)sizeX*Challenge.CORNER_WEIGHTED.getParameter(0);
+          if (toggleChallenge) {
+            switch(challenge) {
+            case CORNER_WEIGHTED:
+              {
+                int[] cornersX = {0, sizeX-1};
+                int[] cornersY = {0, sizeY-1};
+                double radius = (double)sizeX*Challenge.CORNER_WEIGHTED.getParameter(0);
 
-              for (int xx : cornersX) {
-                for (int yy : cornersY) {
-                  double distance = new Coordinate(xx, yy).subtract(location).length();
-                  if (distance <= radius) {
-                    fill(125, 125, 125, (int)(255*(1.0-distance/radius)));
-                    rect(location.getX()*size, location.getY()*size, size, size);
+                for (int xx : cornersX) {
+                  for (int yy : cornersY) {
+                    double distance = new Coordinate(xx, yy).subtract(location).length();
+                    if (distance <= radius) {
+                      fill(125, 125, 125, (int)(255*(1.0-distance/radius)));
+                      rect(location.getX()*size, location.getY()*size, size, size);
+                    }
                   }
                 }
+                break;
               }
-              break;
-            }
-          case CIRCLE_WEIGHTED:
-            {
-              Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CIRCLE_WEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CIRCLE_WEIGHTED.getParameter(0)));
-              double radius = sizeX*Challenge.CIRCLE_WEIGHTED.getParameter(1);
+            case CIRCLE_WEIGHTED:
+              {
+                Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CIRCLE_WEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CIRCLE_WEIGHTED.getParameter(0)));
+                double radius = sizeX*Challenge.CIRCLE_WEIGHTED.getParameter(1);
 
-              Coordinate offset = safeCenter.subtract(location);
-              double distance = offset.length();
-              if (distance <= radius) {
-                fill(125, 125, 125, (int)(255*(1.0-distance/radius)));
-                rect(location.getX()*size, location.getY()*size, size, size);
+                Coordinate offset = safeCenter.subtract(location);
+                double distance = offset.length();
+                if (distance <= radius) {
+                  fill(125, 125, 125, (int)(255*(1.0-distance/radius)));
+                  rect(location.getX()*size, location.getY()*size, size, size);
+                }
+                break;
               }
-              break;
-            }
-          case CIRCLE_UNWEIGHTED:
-            {
-              Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CIRCLE_UNWEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CIRCLE_UNWEIGHTED.getParameter(0)));
-              double radius = sizeX*Challenge.CIRCLE_UNWEIGHTED.getParameter(1);
+            case CIRCLE_UNWEIGHTED:
+              {
+                Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CIRCLE_UNWEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CIRCLE_UNWEIGHTED.getParameter(0)));
+                double radius = sizeX*Challenge.CIRCLE_UNWEIGHTED.getParameter(1);
 
-              Coordinate offset = safeCenter.subtract(location);
-              double distance = offset.length();
-              if (distance <= radius) {
-                rect(location.getX()*size, location.getY()*size, size, size);
+                Coordinate offset = safeCenter.subtract(location);
+                double distance = offset.length();
+                if (distance <= radius) {
+                  rect(location.getX()*size, location.getY()*size, size, size);
+                }
+                break;
               }
+            case RIGHT_HALF:
+              // Survivors are all those on the right side of the arena
+              if (location.getX() > sizeX*Challenge.RIGHT_HALF.getParameter(0)) rect(location.getX()*size, location.getY()*size, size, size);
               break;
-            }
-          case RIGHT_HALF:
-            // Survivors are all those on the right side of the arena
-            if (location.getX() > sizeX*Challenge.RIGHT_HALF.getParameter(0)) rect(location.getX()*size, location.getY()*size, size, size);
-            break;
-          case RIGHT_QUARTER:
-            // Survivors are all those on the right quarter of the arena
-            if (location.getX() > (sizeX*Challenge.RIGHT_QUARTER.getParameter(0))) rect(location.getX()*size, location.getY()*size, size, size);
-            break;
-          case LEFT:
-            // Survivors are all those on the left eighth of the arena (or however configured)
-            if (location.getX() < sizeX*Challenge.LEFT.getParameter(0)) rect(location.getX()*size, location.getY()*size, size, size);
-            break;
-          case STRING:
-            // Survivors are those not touching the border and with exactly the number
-            // of neighbors defined by neighbors and radius, where neighbors includes self
-            {
-              if (!isBorder(location)) {
-                rect(location.getX()*size, location.getY()*size, size, size);
+            case RIGHT_QUARTER:
+              // Survivors are all those on the right quarter of the arena
+              if (location.getX() > (sizeX*Challenge.RIGHT_QUARTER.getParameter(0))) rect(location.getX()*size, location.getY()*size, size, size);
+              break;
+            case LEFT:
+              // Survivors are all those on the left eighth of the arena (or however configured)
+              if (location.getX() < sizeX*Challenge.LEFT.getParameter(0)) rect(location.getX()*size, location.getY()*size, size, size);
+              break;
+            case STRING:
+              // Survivors are those not touching the border and with exactly the number
+              // of neighbors defined by neighbors and radius, where neighbors includes self
+              {
+                if (!isBorder(location)) {
+                  rect(location.getX()*size, location.getY()*size, size, size);
+                }
+                break;
               }
-              break;
-            }
-          case CENTER_WEIGHTED:
-            // Survivors are those within the specified radius of the center. The score
-            // is linearly weighted by distance from the center.
-            {
-              Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CENTER_WEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CENTER_WEIGHTED.getParameter(0)));
-              double radius = sizeX*Challenge.CENTER_WEIGHTED.getParameter(1);
+            case CENTER_WEIGHTED:
+              // Survivors are those within the specified radius of the center. The score
+              // is linearly weighted by distance from the center.
+              {
+                Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CENTER_WEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CENTER_WEIGHTED.getParameter(0)));
+                double radius = sizeX*Challenge.CENTER_WEIGHTED.getParameter(1);
 
-              Coordinate offset = safeCenter.subtract(location);
-              double distance = offset.length();
-              if (distance<=radius) {
-                fill(125, 125, 125, (int)(255*(1.0-distance/radius)));
-                rect(location.getX()*size, location.getY()*size, size, size);
+                Coordinate offset = safeCenter.subtract(location);
+                double distance = offset.length();
+                if (distance<=radius) {
+                  fill(125, 125, 125, (int)(255*(1.0-distance/radius)));
+                  rect(location.getX()*size, location.getY()*size, size, size);
+                }
+                break;
               }
-              break;
-            }
-          case CENTER_UNWEIGHTED:
-            // Survivors are those within the specified radius of the center
-            {
-              Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CENTER_UNWEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CENTER_UNWEIGHTED.getParameter(0)));
-              double radius = sizeX*Challenge.CENTER_UNWEIGHTED.getParameter(1);
+            case CENTER_UNWEIGHTED:
+              // Survivors are those within the specified radius of the center
+              {
+                Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CENTER_UNWEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CENTER_UNWEIGHTED.getParameter(0)));
+                double radius = sizeX*Challenge.CENTER_UNWEIGHTED.getParameter(1);
 
-              Coordinate offset = safeCenter.subtract(location);
-              double distance = offset.length();
-              if (distance<=radius) rect(location.getX()*size, location.getY()*size, size, size);
-              break;
-            }
-          case CORNER:
-            // Survivors are those within the specified radius of any corner.
-            // Assumes square arena.
-            {
-            assert sizeX == sizeY :
-              String.format("Grid is not square (%d, %d)", sizeX, sizeY );
-              int[] cornersX = {0, sizeX-1};
-              int[] cornersY = {0, sizeY-1};
-              double radius = (double)sizeX*Challenge.CORNER.getParameter(0);
+                Coordinate offset = safeCenter.subtract(location);
+                double distance = offset.length();
+                if (distance<=radius) rect(location.getX()*size, location.getY()*size, size, size);
+                break;
+              }
+            case CORNER:
+              // Survivors are those within the specified radius of any corner.
+              // Assumes square arena.
+              {
+              assert sizeX == sizeY :
+                String.format("Grid is not square (%d, %d)", sizeX, sizeY );
+                int[] cornersX = {0, sizeX-1};
+                int[] cornersY = {0, sizeY-1};
+                double radius = (double)sizeX*Challenge.CORNER.getParameter(0);
 
-              for (int xx : cornersX) {
-                for (int yy : cornersY) {
-                  double distance = new Coordinate(xx, yy).subtract(location).length();
-                  if (distance <= radius) rect(location.getX()*size, location.getY()*size, size, size);
+                for (int xx : cornersX) {
+                  for (int yy : cornersY) {
+                    double distance = new Coordinate(xx, yy).subtract(location).length();
+                    if (distance <= radius) rect(location.getX()*size, location.getY()*size, size, size);
+                  }
+                }
+                break;
+              }
+            case MIGRATE_DISTANCE:
+              // Everybody survives and are candidate parents, but scored by how far
+              // they migrated from their birth location.
+              break;
+            case CENTER_SPARSE:
+              // Survivors are those within the specified outer radius of the center and with
+              // the specified number of neighbors in the specified inner radius.
+              // For the grid visualization we will just show the center circle, unweighted
+              // The score is not weighted by distance from the center.
+              {
+                Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CENTER_SPARSE.getParameter(0)), (int)(sizeY*Challenge.CENTER_SPARSE.getParameter(0)));
+                double outerRadius = sizeX*Challenge.CENTER_SPARSE.getParameter(1);
+
+                Coordinate offset = safeCenter.subtract(location);
+                double distance = offset.length();
+                if (distance <= outerRadius) {
+                  rect(location.getX()*size, location.getY()*size, size, size);
+                }
+                break;
+              }
+            case RADIOACTIVE_WALLS:
+              {
+                // This challenge is handled in endOfSimStep(), where individuals may die
+                // at the end of any sim step. There is nothing else to do here at the
+                // end of a generation. All remaining alive become parents.
+                int radioactiveX = (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue() * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Parameters.SIZE_X.getValue() - 1;
+
+                int distanceFromRadioactiveWall = Math.abs(location.getX() - radioactiveX);
+                if (distanceFromRadioactiveWall < (int)Parameters.SIZE_X.getValue() *Challenge.RADIOACTIVE_WALLS.getParameter(1)) {
+                  double chanceOfDeath = 1.0 / distanceFromRadioactiveWall;
+                  fill(200, 10, 10, (int)(255*(chanceOfDeath)));
+                  rect(location.getX()*size, location.getY()*size, size, size);
+                }
+
+                break;
+              }
+            case TOUCH_ANY_WALL:
+              // This challenge is partially handled in endOfSimStep(), where individuals
+              // that are touching a wall are flagged in their Indiv record. They are
+              // allowed to continue living. Here at the end of the generation, any that
+              // never touch a wall will die. All that touched a wall at any time during
+              // their life will become parents.
+            case AGAINST_ANY_WALL:
+              // Survivors are those touching any wall at the end of the generation
+
+              if (isBorder(location)) rect(location.getX()*size, location.getY()*size, size, size);
+              break;
+            case EAST_WEST:
+              // Survivors are all those on the left or right eighths of the arena (or whatever the config says)
+              if ( location.getX() < (int)(sizeX*Challenge.EAST_WEST.getParameter(0)) || location.getX() >= (sizeX - (int)(sizeX*Challenge.EAST_WEST.getParameter(0)))) rect(location.getX()*size, location.getY()*size, size, size);
+              break;
+            case NEAR_BARRIER:
+              // Survivors are those within radius of any barrier center. Weighted by distance.
+              // TODO check the rest of these
+              {
+                double radius = sizeX * Challenge.NEAR_BARRIER.getParameter(0);
+                double minDistance = 1e8;
+
+                for (Coordinate center : barrierCenters) {
+                  double distance = location.subtract(center).length();
+                  if (distance < minDistance) minDistance = distance;
+                }
+
+                if (minDistance <= radius) {
+                  fill(200, 10, 10, (int)(255*(1.0-minDistance/radius)));
+                  rect(location.getX()*size, location.getY()*size, size, size);
+                }
+                break;
+              }
+            case PAIRS:
+              // Survivors are those not touching a border and with exactly one neighbor which has no other neighbor
+              {
+                if (!isBorder(location)) rect(location.getX()*size, location.getY()*size, size, size);
+                break;
+              }
+            case LOCATION_SEQUENCE:
+              // Survivors are those that contacted one or more specified locations in a sequence,
+              // ranked by the number of locations contacted. There will be a bit set in their
+              // challengeBits member for each location contacted.
+              {
+                break;
+              }
+            case ALTRUISM:
+              // Survivors are those inside the circular area defined by
+              // safeCenter and radius
+              {
+                Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.ALTRUISM.getParameter(0)), (int)(sizeY*Challenge.ALTRUISM.getParameter(0)));
+                double radius = sizeX*Challenge.ALTRUISM.getParameter(1);
+
+                Coordinate offset = safeCenter.subtract(location);
+                double distance = offset.length();
+                if (distance<=radius) {
+                  fill(200, 10, 10, (int)(255*(1.0-distance/radius)));
+                  rect(location.getX()*size, location.getY()*size, size, size);
+                }
+                break;
+              }
+            case ALTRUISM_SACRIFICE:
+              // Survivors are all those within the specified radius of the NE corner
+              {
+                double radius = sizeX*Challenge.ALTRUISM_SACRIFICE.getParameter(0);
+
+                double distance = new Coordinate((int)(sizeX - radius), (int)(sizeY - radius)).subtract(location).length();
+                if (distance <= radius) {
+                  fill(200, 10, 10, (int)(255*(1.0-distance/radius)));
+                  rect(location.getX()*size, location.getY()*size, size, size);
                 }
               }
+            default:
               break;
             }
-          case MIGRATE_DISTANCE:
-            // Everybody survives and are candidate parents, but scored by how far
-            // they migrated from their birth location.
-            break;
-          case CENTER_SPARSE:
-            // Survivors are those within the specified outer radius of the center and with
-            // the specified number of neighbors in the specified inner radius.
-            // For the grid visualization we will just show the center circle, unweighted
-            // The score is not weighted by distance from the center.
-            {
-              Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CENTER_SPARSE.getParameter(0)), (int)(sizeY*Challenge.CENTER_SPARSE.getParameter(0)));
-              double outerRadius = sizeX*Challenge.CENTER_SPARSE.getParameter(1);
-
-              Coordinate offset = safeCenter.subtract(location);
-              double distance = offset.length();
-              if (distance <= outerRadius) {
-                rect(location.getX()*size, location.getY()*size, size, size);
-              }
-              break;
-            }
-          case RADIOACTIVE_WALLS:
-            {
-              // This challenge is handled in endOfSimStep(), where individuals may die
-              // at the end of any sim step. There is nothing else to do here at the
-              // end of a generation. All remaining alive become parents.
-              int radioactiveX = (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue() * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Parameters.SIZE_X.getValue() - 1;
-
-              int distanceFromRadioactiveWall = Math.abs(location.getX() - radioactiveX);
-              if (distanceFromRadioactiveWall < (int)Parameters.SIZE_X.getValue() *Challenge.RADIOACTIVE_WALLS.getParameter(1)) {
-                double chanceOfDeath = 1.0 / distanceFromRadioactiveWall;
-                fill(200, 10, 10, (int)(255*(chanceOfDeath)));
-                rect(location.getX()*size, location.getY()*size, size, size);
-              }
-
-              break;
-            }
-          case TOUCH_ANY_WALL:
-            // This challenge is partially handled in endOfSimStep(), where individuals
-            // that are touching a wall are flagged in their Indiv record. They are
-            // allowed to continue living. Here at the end of the generation, any that
-            // never touch a wall will die. All that touched a wall at any time during
-            // their life will become parents.
-          case AGAINST_ANY_WALL:
-            // Survivors are those touching any wall at the end of the generation
-
-            if (isBorder(location)) rect(location.getX()*size, location.getY()*size, size, size);
-            break;
-          case EAST_WEST:
-            // Survivors are all those on the left or right eighths of the arena (or whatever the config says)
-            if ( location.getX() < (int)(sizeX*Challenge.EAST_WEST.getParameter(0)) || location.getX() >= (sizeX - (int)(sizeX*Challenge.EAST_WEST.getParameter(0)))) rect(location.getX()*size, location.getY()*size, size, size);
-            break;
-          case NEAR_BARRIER:
-            // Survivors are those within radius of any barrier center. Weighted by distance.
-            // TODO check the rest of these
-            {
-              double radius = sizeX * Challenge.NEAR_BARRIER.getParameter(0);
-              double minDistance = 1e8;
-
-              for (Coordinate center : barrierCenters) {
-                double distance = location.subtract(center).length();
-                if (distance < minDistance) minDistance = distance;
-              }
-
-              if (minDistance <= radius) {
-                fill(200, 10, 10, (int)(255*(1.0-minDistance/radius)));
-                rect(location.getX()*size, location.getY()*size, size, size);
-              }
-              break;
-            }
-          case PAIRS:
-            // Survivors are those not touching a border and with exactly one neighbor which has no other neighbor
-            {
-              if (!isBorder(location)) rect(location.getX()*size, location.getY()*size, size, size);
-              break;
-            }
-          case LOCATION_SEQUENCE:
-            // Survivors are those that contacted one or more specified locations in a sequence,
-            // ranked by the number of locations contacted. There will be a bit set in their
-            // challengeBits member for each location contacted.
-            {
-              break;
-            }
-          case ALTRUISM:
-            // Survivors are those inside the circular area defined by
-            // safeCenter and radius
-            {
-              Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.ALTRUISM.getParameter(0)), (int)(sizeY*Challenge.ALTRUISM.getParameter(0)));
-              double radius = sizeX*Challenge.ALTRUISM.getParameter(1);
-
-              Coordinate offset = safeCenter.subtract(location);
-              double distance = offset.length();
-              if (distance<=radius) {
-                fill(200, 10, 10, (int)(255*(1.0-distance/radius)));
-                rect(location.getX()*size, location.getY()*size, size, size);
-              }
-              break;
-            }
-          case ALTRUISM_SACRIFICE:
-            // Survivors are all those within the specified radius of the NE corner
-            {
-              double radius = sizeX*Challenge.ALTRUISM_SACRIFICE.getParameter(0);
-
-              double distance = new Coordinate((int)(sizeX - radius), (int)(sizeY - radius)).subtract(location).length();
-              if (distance <= radius) {
-                fill(200, 10, 10, (int)(255*(1.0-distance/radius)));
-                rect(location.getX()*size, location.getY()*size, size, size);
-              }
-            }
-          default:
-            break;
           }
         }
       }

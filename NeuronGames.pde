@@ -12,6 +12,7 @@ void settings() {
 
 final static int BACKGROUND = 0;
 boolean toggleDisplay = true; // true to show the display, false to let the sim run without updating the display
+boolean toggleChallenge = true;
 RunMode runMode = RunMode.STOP;
 int generations = 0;
 int simStep = 0;
@@ -20,7 +21,7 @@ AtomicInteger murderCount = new AtomicInteger();
 Environment theEnvironment;
 List<List<Genome>> historyOfTheWorld = new ArrayList<List<Genome>>();
 long genTimer;
-String optionPrompt = "B - start\nL - load\nP - pause/unpause\nS - save\nT - toggle display\nX - exit";
+String optionPrompt = "B - start\nL - load\nP - pause/unpause\nS - save\nT - toggle display\nC - toggle Challenge display\nX - exit";
 
 void setup() {
   theEnvironment = new Environment();
@@ -168,6 +169,12 @@ void keyPressed() {
     // Start the show with a random set of guys
     runMode = startSimulator();
     break;
+  case 'c':
+  case 'C':
+  {
+    toggleChallenge = !toggleChallenge;
+    break;
+  }
   case 'p':
   case 'P':
     {
