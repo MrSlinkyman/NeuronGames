@@ -385,9 +385,7 @@ class Environment {
     for (int index = rando.nextInt(populationSize()); count > 0; index=rando.nextInt(populationSize())) {
       Creature c = at(index);
       if (c.isAlive()) {
-        System.out.printf("Individual:%s\n", c);
-        // TODO: Figure out if I want this and how to print it out
-        //at(index).printIGraphEdgeList();
+        System.out.printf("Individual:%s\niGraph:\n%s\n", c,c.toIGraph());
         --count;
       }
     }

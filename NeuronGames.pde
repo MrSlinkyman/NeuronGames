@@ -102,7 +102,7 @@ void draw() {
         historyOfTheWorld.clear();
       } else {
         ++generations;
-        System.out.printf("%d survivors, timeElapsed:%s", numberSurvivors, genTime);
+        System.out.printf("%d survivors(%.1f%%), timeElapsed:%s", numberSurvivors, 100.0*numberSurvivors/theEnvironment.populationSize(), genTime);
       }
       println();
 
@@ -297,6 +297,7 @@ void mousePressed() {
       int creatureIndex = theEnvironment.getGrid().at(mouseLocation);
       Creature creature = theEnvironment.at(creatureIndex);
       println(creature);
+      println(creature.toIGraph());
       break;
     }
   case CENTER:

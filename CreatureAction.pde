@@ -5,29 +5,35 @@
 // I means the action affects the individual internally (Indiv)
 // W means the action also affects the environment (Peeps or Grid)
 enum CreatureAction {
-  MOVE_X("move X"), // W +- X component of movement
-    MOVE_Y("move Y"), // W +- Y component of movement
-    MOVE_FORWARD("move fwd"), // W continue last direction
-    MOVE_RL("move R-L"), // W +- component of movement
-    MOVE_RANDOM("move random"), // W
-    SET_OSCILLATOR_PERIOD("set osc1"), // I
-    SET_LONGPROBE_DIST("set longprobe dist"), // I
-    SET_RESPONSIVENESS("set inv-responsiveness"), // I
-    EMIT_SIGNAL0("emit signal 0"), // W
-    MOVE_EAST("move east"), // W
-    MOVE_WEST("move west"), // W
-    MOVE_NORTH("move north"), // W
-    MOVE_SOUTH("move south"), // W
-    MOVE_LEFT("move left"), // W
-    MOVE_RIGHT("move right"), // W
-    MOVE_REVERSE("move reverse"), // W
-    NUM_ACTIONS(""), // <<----------------- END OF ACTIVE ACTIONS MARKER
-    KILL_FORWARD("kill fwd");      // W
+  MOVE_X("move X", "MvX"), // W +- X component of movement
+  MOVE_Y("move Y", "MvY"), // W +- Y component of movement
+  MOVE_FORWARD("move fwd", "Mfd"), // W continue last direction
+  MOVE_RL("move R-L", "MRL"), // W +- component of movement
+  MOVE_RANDOM("move random", "Mrn"), // W
+  SET_OSCILLATOR_PERIOD("set osc1", "OSC"), // I
+  SET_LONGPROBE_DIST("set longprobe dist", "LPD"), // I
+  SET_RESPONSIVENESS("set inv-responsiveness", "Res"), // I
+  EMIT_SIGNAL0("emit pheromone", "SG"), // W
+  MOVE_EAST("move east", "MvE"), // W
+  MOVE_WEST("move west", "MvW"), // W
+  MOVE_NORTH("move north", "MvN"), // W
+  MOVE_SOUTH("move south", "MvS"), // W
+  MOVE_LEFT("move left", "MvL"), // W
+  MOVE_RIGHT("move right", "MvR"), // W
+  MOVE_REVERSE("move reverse", "Mrv"), // W
+  NUM_ACTIONS(), // <<----------------- END OF ACTIVE ACTIONS MARKER
+  KILL_FORWARD("kill fwd", "Klf");      // W
 
   private final String name;
+  private final String shortName;
 
-  CreatureAction(String name) {
+  CreatureAction() {
+    name = "";
+    shortName = "";
+  }
+  CreatureAction(String name, String shortName) {
     this.name = name;
+    this.shortName = shortName;
   }
 
   /**
@@ -44,6 +50,13 @@ enum CreatureAction {
    */
   public String getName() {
     return name;
+  }
+
+  /**
+   * Returns the short name of this action.
+   */
+  public String getShortName() {
+    return shortName;
   }
 
   public void printAllActions() {

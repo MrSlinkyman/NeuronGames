@@ -106,6 +106,13 @@ class Gene {
     return str;
   }
 
+  public String toIGraph() {
+    return String.format("%s %s %d",
+      (sensor == NeuronType.SENSOR)?         Sensor.values()[sensorSource].getShortName(): String.format("N%d", sensorSource),
+      (target == NeuronType.ACTION)? CreatureAction.values()[targetSource].getShortName(): String.format("N%d", targetSource),
+      weight);
+  }
+
   public double getWeight() {
     return weight/weightScaler;
   }

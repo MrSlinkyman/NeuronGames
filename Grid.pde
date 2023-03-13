@@ -538,9 +538,9 @@ class Grid {
    above midrange if density is greatest in forward direction.
    */
   public double getPopulationDensityAlongAxis(Coordinate loc, Direction dir) {
-
     assert !dir.equals(new Direction(Compass.CENTER)) :
-    dir; // require a defined axis
+    String.format("Direction is CENTER:%s", dir); // require a defined axis
+
     double sensorRadius = (double)Parameters.POPULATION_SENSOR_RADIUS.getValue();
     final double[] sum = {0.0};
     Coordinate dirVec = dir.asNormalizedCoordinate();
@@ -561,7 +561,7 @@ class Grid {
 
     double maxSumMag = 6.0 * sensorRadius;
   assert sum[0] >= -maxSumMag && sum[0] <= maxSumMag :
-    sum[0];
+    String.format("Sum of projections too big:%f", sum[0]);
 
     double sensorVal = sum[0] / maxSumMag; // convert to -1.0..1.0
     sensorVal = (sensorVal + 1.0) / 2.0; // convert to 0.0..1.0

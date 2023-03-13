@@ -313,6 +313,17 @@ class Creature {
       );
   }
 
+  // This prints a neural net in a form that can be processed with
+  // graph-nnet.py to produce a graphic illustration of the net.
+  public String toIGraph()
+  {
+    String iGraph = "";
+    for (Gene conn : brain.getConnections()) {
+      iGraph += conn.toIGraph()+"\n";
+    }
+    return iGraph;
+  }
+
   private void display () {
     if (toggleDisplay) {
       int myColor[] = makeGeneticColor();
@@ -577,7 +588,7 @@ class Creature {
       return getChallengeBits() != 0 ? success : failure;
     case EAST_WEST:
       // Survivors are all those on the left or right eighths of the arena (or whatever the config says)
-      return location.getX() < sizeX*Challenge.EAST_WEST.getParameter(0) || location.getX() >= (sizeX - sizeX*Challenge.EAST_WEST.getParameter(0)) ?
+      return location.getX() < (int)(sizeX*Challenge.EAST_WEST.getParameter(0)) || location.getX() >= (sizeX - (int)(sizeX*Challenge.EAST_WEST.getParameter(0))) ?
         success :
         failure;
     case NEAR_BARRIER:
