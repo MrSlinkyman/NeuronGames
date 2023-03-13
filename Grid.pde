@@ -277,7 +277,6 @@ class Grid {
             // Survivors are those not touching a border and with exactly one neighbor which has no other neighbor
             {
               if (!isBorder(location)) rect(location.getX()*size, location.getY()*size, size, size);
-              ;
               break;
             }
           case LOCATION_SEQUENCE:
