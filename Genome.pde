@@ -63,8 +63,9 @@ class Genome {
     final Genome g1 = parents.get(parent1Idx);
     final Genome g2 = parents.get(parent2Idx);
 
-    assert !(g1.isEmpty() || g2.isEmpty()) :String.format("1 or both parents are empty: parent1:%s, parent2:%s", g1, g2);
-    
+    assert !(g1.isEmpty() || g2.isEmpty()) :
+    String.format("1 or both parents are empty: parent1:%s, parent2:%s", g1, g2);
+
     BiConsumer<Genome, Genome> overlayWithSliceOf = (Genome shorter, Genome longer) -> {
       int index0 = rando.nextInt(shorter.size()-1);
       int index1 = rando.nextInt(shorter.size());
@@ -92,22 +93,28 @@ class Genome {
       Genome shorter = new Genome((g1.size() > g2.size()?g2:g1).getGenome());
       genome = new Genome((g1.size() > g2.size()?g1:g2).getGenome());
       overlayWithSliceOf.accept(shorter, genome);
-      assert !genome.isEmpty() : String.format("new sliced genome is empty source genomes: s:%s, l:%s", shorter, genome);
+      assert !genome.isEmpty() :
+      String.format("new sliced genome is empty source genomes: s:%s, l:%s", shorter, genome);
 
       int newGenomeLength = g1.size() + g2.size();
       newGenomeLength = newGenomeLength / 2 + ((newGenomeLength % 2 != 0 && rando.nextBoolean())? 1:0);
       genome.cropLength(newGenomeLength);
-      assert !genome.isEmpty() : String.format("cropped genome is empty: desired length:%d", newGenomeLength);
+      assert !genome.isEmpty() :
+      String.format("cropped genome is empty: desired length:%d", newGenomeLength);
     } else {
       genome = g2;
-      assert !genome.isEmpty() : String.format("2nd parent was empty: 1st:%s", g1);
+      assert !genome.isEmpty() :
+      String.format("2nd parent was empty: 1st:%s", g1);
     }
 
     genome.randomInsertDeletion();
-    assert !genome.isEmpty() : String.format("random insert/delete created an empty genome");
+    assert !genome.isEmpty() :
+    String.format("random insert/delete created an empty genome");
     genome.applyPointMutations();
-    assert !genome.isEmpty() : String.format("Mutations produced empty genome");
-    assert genome.size() <= (int)Parameters.GENOME_MAX_LENGTH.getValue() : String.format("new genome is too big:%d", genome.size());
+    assert !genome.isEmpty() :
+    String.format("Mutations produced empty genome");
+    assert genome.size() <= (int)Parameters.GENOME_MAX_LENGTH.getValue() :
+    String.format("new genome is too big:%d", genome.size());
 
     copyGenes(genome.genes);
   }
@@ -122,10 +129,10 @@ class Genome {
       genes[i] = new Gene(strGenes[i]);
     }
   }
-  
-  private void copyGenes(Gene[] genes){
+
+  private void copyGenes(Gene[] genes) {
     this.genes = new Gene[genes.length];
-    for(int i = 0; i < genes.length; i++){
+    for (int i = 0; i < genes.length; i++) {
       this.genes[i] = new Gene(genes[i].getBlueprint());
     }
   }
@@ -155,16 +162,18 @@ class Genome {
       } else if (chance < 0.8) { // sinkNum
         targetGene.setTargetSource((short)Math.abs(targetGene.getTargetSource() ^ bitIndex8));
       } else { // weight
-      
+
         targetGene.weight ^= (1 << rando.ints(1, 1, 15).toArray()[0]);
       }
     } else {
-      assert false : String.format("Method specified is invalid:%d", method);
+    assert false :
+      String.format("Method specified is invalid:%d", method);
     }
   }
 
   void cropLength(int newGeneLength) {
-  assert newGeneLength > 0 : String.format("Cripping to a bad length:%d, original length", newGeneLength, size());
+  assert newGeneLength > 0 :
+    String.format("Cripping to a bad length:%d, original length", newGeneLength, size());
     if (genes.length > newGeneLength) {
       genes = (new Random().nextBoolean())?
         Arrays.copyOfRange(genes, genes.length - newGeneLength, genes.length) :
@@ -290,7 +299,6 @@ class Genome {
     return allBytes;
   }
 
-
   private String getMethod() {
     return String.format("%s#%s", StackWalker.getInstance().walk(frames -> frames
       .skip(1)
@@ -359,12 +367,7 @@ class Genome {
     return distance;
   }
 
-
-
-
-
   // ** TESTS **
-
   public void allTests() {
     System.out.println(getMethod());
 

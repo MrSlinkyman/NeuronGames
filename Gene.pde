@@ -10,13 +10,14 @@
  *
  * May use this only for testing, not for actual computation
  *
- */class Gene {
+ */
+class Gene {
   private NeuronType sensor;
   private short sensorSource;
   private NeuronType target;
   private short targetSource;
   private short weight;
-  private byte[] startingBlueprint; 
+  private byte[] startingBlueprint;
 
   private double weightScaler = 8192.0;
 
@@ -30,7 +31,8 @@
    * e.g. a4f23501
    */
   Gene(String strGene) {
-    assert strGene != null && strGene.length() == 8 : String.format("bad gene string:'%s'", strGene);
+    assert strGene != null && strGene.length() == 8 :
+    String.format("bad gene string:'%s'", strGene);
 
     byte[] newGene = new byte[4];
     newGene[0] = (byte)Integer.parseInt(strGene.substring(0, 2), 16);
@@ -44,7 +46,8 @@
    * the byte array should be 4 bytes long
    */
   Gene(byte[] gene) {
-  assert gene != null && gene.length == 4 : String.format("Bad gene array:%s", gene);
+  assert gene != null && gene.length == 4 :
+    String.format("Bad gene array:%s", gene);
     makeGene(gene);
   }
 
@@ -54,7 +57,7 @@
       newGene[3-i] = (byte)(gene >> 8*i);
     }
   }
-  
+
   private void makeGene(byte[] gene) {
     this.startingBlueprint = gene;
     this.sensor = (gene[0] & 0x80) == 0? NeuronType.NEURON : NeuronType.SENSOR;
@@ -99,7 +102,7 @@
       str += String.format("%02X", gene);
     }
     str +="]=>";
-    str+=String.format("[s(%s:%s), t(%s:%s), w:%f]", sensor, (NeuronType.SENSOR == sensor)?Sensor.values()[sensorSource]:String.format("%d",sensorSource), target, (NeuronType.ACTION == target)?CreatureAction.values()[targetSource]:String.format("%d",targetSource), getWeight());
+    str+=String.format("[s(%s:%s), t(%s:%s), w:%f]", sensor, (NeuronType.SENSOR == sensor)?Sensor.values()[sensorSource]:String.format("%d", sensorSource), target, (NeuronType.ACTION == target)?CreatureAction.values()[targetSource]:String.format("%d", targetSource), getWeight());
     return str;
   }
 

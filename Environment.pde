@@ -110,7 +110,6 @@ class Environment {
   }
 
   void endOfSimStep(int simStep, int generation) {
-    //System.out.printf("Generaion:%d.%d\n", generation, simStep);
     Random rando = new Random();
     if ((Challenge)Parameters.CHALLENGE.getValue() == Challenge.RADIOACTIVE_WALLS) {
       // During the first half of the generation, the west wall is radioactive,
@@ -120,7 +119,6 @@ class Environment {
       int radioactiveX = (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue() * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Parameters.SIZE_X.getValue() - 1;
 
       IntStream.range(0, populationSize()).parallel().forEach(index -> {
-        // for (int index = 0; index < populationSize(); ++index) {
         Creature indiv = at(index);
         if (indiv.isAlive()) {
           int distanceFromRadioactiveWall = Math.abs(indiv.getLocation().getX() - radioactiveX);
@@ -388,13 +386,8 @@ class Environment {
       Creature c = at(index);
       if (c.isAlive()) {
         System.out.printf("Individual:%s\n", c);
-        //at(index).getGenome().printGenome();
-        //System.out.printf("\n");
-
-        // at(index).printNeuralNet();
         // TODO: Figure out if I want this and how to print it out
         //at(index).printIGraphEdgeList();
-
         --count;
       }
     }

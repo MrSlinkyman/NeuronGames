@@ -166,7 +166,7 @@ class Creature {
     // of an attempted murder. Probabilities under the threshold are considered 0.0.
     // If this action neuron is enabled but not driven, the neighbors are safe.
     if (CreatureAction.KILL_FORWARD.isEnabled() && (boolean)Parameters.KILL_ENABLE.getValue()) {
-      final double killThreshold = 0.5f;  // 0.0..1.0; 0.5 is midlevel
+      final double killThreshold = 0.5;  // 0.0..1.0; 0.5 is midlevel
       double level = actionLevels[CreatureAction.KILL_FORWARD.ordinal()];
       level = (Math.tanh(level) + 1.0) / 2.0; // convert to 0.0..1.0
       level *= responsivenessAdjusted;
@@ -457,7 +457,6 @@ class Creature {
       // Survivors are those not touching the border and with exactly the number
       // of neighbors defined by neighbors and radius, where neighbors includes self
       {
-        // Do something for the STRING challenge
         int minNeighbors = (int)Challenge.STRING.getParameter(0);
         int maxNeighbors = (int)Challenge.STRING.getParameter(1);
         double radius = Challenge.STRING.getParameter(2);
@@ -597,16 +596,16 @@ class Creature {
     case PAIRS:
       // Survivors are those not touching a border and with exactly one neighbor which has no other neighbor
       {
-        // Do something for the PAIRS challenge
         if (onBorder()) return failure;
 
         List<Creature> neighbors = neighbors();
-        if (neighbors.size() > 1) return failure;
+        if (neighbors.size() == 1) {
+          List<Creature> otherNeighbors = neighbors.get(0).neighbors();
+          if (otherNeighbors.size() > 1) return failure;
+          return success;
+        }
 
-        List<Creature> otherNeighbors = neighbors.get(0).neighbors();
-        if (otherNeighbors.size() > 1) return failure;
-
-        return success;
+        return failure;
       }
     case LOCATION_SEQUENCE:
       // Survivors are those that contacted one or more specified locations in a sequence,
@@ -820,7 +819,6 @@ class Creature {
 
     assert !Double.isNaN(sensorVal) && sensorVal >= -0.01 && sensorVal <= 1.01 :
     sensorVal;
-
 
     return sensorVal;
   }

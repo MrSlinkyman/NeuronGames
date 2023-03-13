@@ -1,4 +1,4 @@
-import java.util.List; //<>// //<>// //<>//
+import java.util.List; //<>// //<>//
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Map;
@@ -78,7 +78,6 @@ class NeuralNet {
    actionLevels[] which is returned to the caller by value (thanks RVO).
    ********************************************************************************/
 
-  //std::array<float, Action::NUM_ACTIONS> Indiv::feedForward(unsigned simStep)
   public double[] feedForward(int simStep)
   {
     //assert neurons.size() > 0 :
@@ -87,14 +86,11 @@ class NeuralNet {
     // contains one value per action neuron, which is the sum of all its weighted
     // input connections. The sum has an arbitrary range. Return by value assumes compiler
     // return value optimization.
-    //double[] actionLevels = new double[CreatureAction.NUM_ACTIONS.ordinal()];
-    //Arrays.fill(actionLevels, 0.0); // undriven actions default to value 0.0
     double[] actionLevels = new double[CreatureAction.NUM_ACTIONS.ordinal()];
     Arrays.fill(actionLevels, 0.0);
 
 
     // Weighted inputs to each neuron are summed in neuronAccumulators[]
-    //std::vector<float> neuronAccumulators(nnet.neurons.size(), 0.0);
     double[] neuronAccumulators = new double[neurons.size()];
     Arrays.fill(neuronAccumulators, 0.0);
 

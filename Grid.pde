@@ -276,7 +276,8 @@ class Grid {
           case PAIRS:
             // Survivors are those not touching a border and with exactly one neighbor which has no other neighbor
             {
-              if (!isBorder(location)) rect(location.getX()*size, location.getY()*size, size, size);;
+              if (!isBorder(location)) rect(location.getX()*size, location.getY()*size, size, size);
+              ;
               break;
             }
           case LOCATION_SEQUENCE:
@@ -492,10 +493,8 @@ class Grid {
     }
     if (numLocsToTest > 0 && (!isInBounds(loc) || isBarrierAt(loc))) {
       return longProbeDist;
-    } //else {
-
+    }
     return count;
-    // }
   }
 
   // Returns the number of locations to the next barrier in the
@@ -517,14 +516,15 @@ class Grid {
     }
     if (numLocsToTest > 0 && !isInBounds(loc)) {
       return longProbeDist;
-    } // else {
+    }
 
     return count;
-    //}
   }
 
   public boolean isBorder(Coordinate loc) {
-    return loc.getX() == 0 || loc.getX() == (int)Parameters.SIZE_X.getValue() - 1 || loc.getY() == 0 || loc.getY() == (int)Parameters.SIZE_Y.getValue() - 1;
+    return
+      loc.getX() == 0 || loc.getX() == (int)Parameters.SIZE_X.getValue() - 1 ||
+      loc.getY() == 0 || loc.getY() == (int)Parameters.SIZE_Y.getValue() - 1;
   }
 
   /**
@@ -605,8 +605,8 @@ class Grid {
       countRev = probeDistance;
     }
 
-    float sensorVal = ((countFwd - countRev) + probeDistance); // convert to 0..2*probeDistance
-    sensorVal = (sensorVal / 2.0f) / probeDistance; // convert to 0.0..1.0
+    double sensorVal = ((countFwd - countRev) + probeDistance); // convert to 0..2*probeDistance
+    sensorVal = (sensorVal / 2.0) / probeDistance; // convert to 0.0..1.0
 
     return sensorVal;
   }

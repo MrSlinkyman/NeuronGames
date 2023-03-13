@@ -81,8 +81,6 @@ class Coordinate {
     };
     for (int dx = xBound[0]; dx <= xBound[1]; ++dx) {
       int x = getX() + dx;
-      //assert x >= 0 && x < gridWidth :
-      //  x;
       int extentY = (int)Math.sqrt(radius * radius - dx * dx);
       int yBound[] = new int[]{
         -(int)((boundaryType == BoundaryType.INFINITE)?extentY:Math.min(extentY, getY())),

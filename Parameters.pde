@@ -11,12 +11,12 @@ public enum Parameters {
     POPULATION(1000), // >= 0, default 3000
     STEPS_PER_GENERATION(300), // > 0, default 300
     MAX_GENERATIONS(200000), // >= 0, default 200000
-    STEPS_PER_FRAME(3), // a frame is equivalent to a call to the draw() method
+    STEPS_PER_FRAME(5), // a frame is equivalent to a call to the draw() method
 
     NUM_THREADS(4), // > 0, NOT USED
 
     SIGNAL_LAYERS(1), // >= 0
-    MAX_NUMBER_NEURONS(5), // > 0
+    MAX_NUMBER_NEURONS(10), // > 0
     POPULATION_SENSOR_RADIUS(2.5d), // > 0.0
     SIGNAL_SENSOR_RADIUS(2.0d), // > 0
     RESPONSIVENESS(0.5d), // >= 0.0
@@ -31,8 +31,8 @@ public enum Parameters {
     DELETION_RATIO(0.5d), // 0.0..1.0, default 0.5d
     SEXUAL_REPRODUCTION(true), // default true, determines if the sim should use 1 or 2 parents
     CHOOSE_PARENTS_BY_FITNESS(true), // default true
-    CHALLENGE(Challenge.RIGHT_HALF), // one of Challenge, default CORNER_WEIGHTED, fitness challenge
-    BARRIER_TYPE(BarrierType.NONE), // one of BarrierType, default NONE
+    CHALLENGE(Challenge.PAIRS), // one of Challenge, default CORNER_WEIGHTED, fitness challenge
+    BARRIER_TYPE(BarrierType.SPOTS), // one of BarrierType, default NONE
     INITIAL_NEURON_OUTPUT(0.5d), // default Neuron output, default 0.5d
     BOUNDARY_TYPE(BoundaryType.BOUNDED), // one of BoundaryType, default BOUNDED, INFINITE currently NOT SUPPORTED
 
@@ -47,9 +47,9 @@ public enum Parameters {
     DETERMINISTIC(false), // boolean, default fale, NOT USED
     RNG_SEED(12345678), // >= 0, default 12345678, NOT USED
 
-    GENOME_MAX_LENGTH(4), // > 0, default 300, number of genes max per creature
-    GENOME_INITIAL_LENGTH_MIN(4), // > 0 and < GENOME_MAX_LENGTH, default GENOME_MAX_LENGTH, typically equal to MAX
-    GENOME_INITIAL_LENGTH_MAX(4), // > 0 and < GENOME_MAX_LENGTH, default GENOME_MAX_LENGTH, typically equal to MIN
+    GENOME_MAX_LENGTH(300), // > 0, default 300, number of genes max per creature
+    GENOME_INITIAL_LENGTH_MIN(24), // > 0 and < GENOME_MAX_LENGTH, default GENOME_MAX_LENGTH, typically equal to MAX
+    GENOME_INITIAL_LENGTH_MAX(24), // > 0 and < GENOME_MAX_LENGTH, default GENOME_MAX_LENGTH, typically equal to MIN
 
     SAVE_VIDEO(true), // boolean, default true, NOT USED, saves frames to make a video
     VIDEO_STRIDE(25), // > 0, default 25, NOT USED
