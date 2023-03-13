@@ -11,7 +11,7 @@ public enum Parameters {
     POPULATION(1000), // >= 0, default 3000
     STEPS_PER_GENERATION(300), // > 0, default 300
     MAX_GENERATIONS(200000), // >= 0, default 200000
-    STEPS_PER_FRAME(5), // a frame is equivalent to a call to the draw() method
+    STEPS_PER_FRAME(3), // a frame is equivalent to a call to the draw() method
 
     NUM_THREADS(4), // > 0, NOT USED
 

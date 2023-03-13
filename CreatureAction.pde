@@ -1,4 +1,4 @@
-// Place the action neuron you want enabled prior to NUM_ACTIONS. Any //<>// //<>// //<>// //<>//
+// Place the action neuron you want enabled prior to NUM_ACTIONS. Any //<>// //<>// //<>//
 // that are after NUM_ACTIONS will be disabled in the simulator.
 // If new items are added to this enum, also update the name functions
 // in analysis.cpp.

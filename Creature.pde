@@ -601,8 +601,7 @@ class Creature {
         List<Creature> neighbors = neighbors();
         if (neighbors.size() == 1) {
           List<Creature> otherNeighbors = neighbors.get(0).neighbors();
-          if (otherNeighbors.size() > 1) return failure;
-          return success;
+          if (otherNeighbors.size() == 1) return success;
         }
 
         return failure;
