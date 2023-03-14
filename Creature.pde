@@ -45,7 +45,7 @@ class Creature {
 
   private Direction randomAxis() {
     Random rand = new Random();
-    Direction d = new Direction(Compass.findByValue(rand.nextInt(Compass.values().length)));
+    Direction d = new Direction(Compass.values()[rand.nextInt(Compass.values().length)]);
     if (d.direction == Compass.CENTER) d = randomAxis();
     return d;
   }
