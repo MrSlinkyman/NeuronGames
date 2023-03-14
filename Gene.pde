@@ -102,7 +102,12 @@ class Gene {
       str += String.format("%02X", gene);
     }
     str +="]=>";
-    str+=String.format("[s(%s:%s), t(%s:%s), w:%f]", sensor, (NeuronType.SENSOR == sensor)?Sensor.values()[sensorSource]:String.format("%d", sensorSource), target, (NeuronType.ACTION == target)?CreatureAction.values()[targetSource]:String.format("%d", targetSource), getWeight());
+    str+=String.format("[s(%s:%s), t(%s:%s), w:%f]",
+      sensor,
+      (NeuronType.SENSOR == sensor)?Sensor.values()[sensorSource]:String.format("%d", sensorSource),
+      target,
+      (NeuronType.ACTION == target)?CreatureAction.values()[targetSource]:String.format("%d", targetSource),
+      getWeight());
     return str;
   }
 

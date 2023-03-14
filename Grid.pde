@@ -234,8 +234,8 @@ class Grid {
 
                 int distanceFromRadioactiveWall = Math.abs(location.getX() - radioactiveX);
                 if (distanceFromRadioactiveWall < (int)Parameters.SIZE_X.getValue() *Challenge.RADIOACTIVE_WALLS.getParameter(1)) {
-                  double chanceOfDeath = 1.0 / distanceFromRadioactiveWall;
-                  fill(200, 10, 10, (int)(255*(chanceOfDeath)));
+                  double dropoff = 1.0 / distanceFromRadioactiveWall;
+                  fill(200, 10, 10, (int)(255.0*dropoff));
                   rect(location.getX()*size, location.getY()*size, size, size);
                 }
 
@@ -243,7 +243,7 @@ class Grid {
               }
             case TOUCH_ANY_WALL:
               // This challenge is partially handled in endOfSimStep(), where individuals
-              // that are touching a wall are flagged in their Indiv record. They are
+              // that are touching a wall are flagged in their Creature record. They are
               // allowed to continue living. Here at the end of the generation, any that
               // never touch a wall will die. All that touched a wall at any time during
               // their life will become parents.

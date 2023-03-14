@@ -353,8 +353,6 @@ int[] getRealLocation(Creature creature) {
  * due to unresolved bugs when threaded)
  */
 public RunMode startSimulator(File file) {
-  //CreatureAction.NUM_ACTIONS.printAllActions();
-  //Sensor.NUM_SENSES.printAllSensors();
   genTimer = System.currentTimeMillis();
   theEnvironment.getGrid().initialize((int)Parameters.SIZE_X.getValue(), (int)Parameters.SIZE_Y.getValue());
   theEnvironment.getSignals().initialize((int)Parameters.SIGNAL_LAYERS.getValue(), (int)Parameters.SIZE_X.getValue(), (int)Parameters.SIZE_Y.getValue());

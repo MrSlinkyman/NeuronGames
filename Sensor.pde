@@ -1,7 +1,3 @@
-// Place the sensor neuron you want enabled prior to NUM_SENSES. Any
-// that are after NUM_SENSES will be disabled in the simulator.
-// If new items are added to this enum, also update the name functions
-// in analysis.cpp.
 // I means data about the individual, mainly stored in Creature
 // W means data about the environment, mainly stored in Environment or Grid
 enum Sensor {
@@ -40,21 +36,27 @@ enum Sensor {
   // Pheromones
   SIGNAL0("signal 0", "Sg"), // W strength of signal0/pheromone in neighborhood
   SIGNAL0_FWD("signal 0 fwd", "Sfd"), // W strength of signal0/pheromone in the forward-reverse axis
-  SIGNAL0_LR("signal 0 LR", "Slr"), // W strength of signal0/pheromone in the left-right axis
-
-  NUM_SENSES();
+  SIGNAL0_LR("signal 0 LR", "Slr") // W strength of signal0/pheromone in the left-right axis
+  ;
 
   private final String text;
   private final String shortName;
+  private final boolean enabled; 
 
   Sensor() {
     this.text = "";
     this.shortName = "";
+    enabled = false;
   }
   
   Sensor(String text, String shortName) {
+    this(text, shortName, true);
+  }
+
+  Sensor(String text, String shortName, boolean enabled) {
     this.text = text;
     this.shortName = shortName;
+    this.enabled = enabled;
   }
 
   public String getText() {
@@ -64,11 +66,15 @@ enum Sensor {
   public String getShortName() {
     return shortName;
   }
+  
+  public boolean isEnabled(){
+    return enabled;
+  }
 
-  public void printAllSensors() {
+  public static void printAllSensors() {
     System.out.println("Sensors:");
     for (Sensor sensor : values()) {
-      if (sensor.ordinal() < NUM_SENSES.ordinal())
+      if (sensor.isEnabled())
         System.out.printf("%s (%s)\n",sensor.getText(), sensor.getShortName());
     }
   }

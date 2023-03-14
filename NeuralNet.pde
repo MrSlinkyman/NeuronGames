@@ -25,7 +25,6 @@ class NeuralNet {
   }
 
   NeuralNet(Creature creature) {
-    //this.brain = new MultiLayerPerceptron(Sensor.NUM_SENSES.ordinal(), environment.maxNeurons, CreatureAction.NUM_ACTIONS.ordinal());
     this.neurons = new ArrayList<CreatureNeuron>();
     this.connections = new ArrayList<Gene>();
     this.creature = creature;
@@ -46,47 +45,43 @@ class NeuralNet {
   public List<Gene> getConnections() {
     return connections;
   }
-  /********************************************************************************
-   This function does a neural net feed-forward operation, from sensor (input) neurons
-   through internal neurons to action (output) neurons. The feed-forward
-   calculations are evaluated once each simulator step (simStep).
-   
-   There is no back-propagation in this simulator. Once an individual's neural net
-   brain is wired at birth, the weights and topology do not change during the
-   individual's lifetime.
-   
-   The data structure Indiv::neurons contains internal neurons, and Indiv::connections
-   holds the connections between the neurons.
-   
-   We have three types of neurons:
-   
-   input sensors - each gives a value in the range SENSOR_MIN.. SENSOR_MAX (0.0..1.0).
-   Values are obtained from getSensor().
-   
-   internal neurons - each takes inputs from sensors or other internal neurons;
-   each has output value in the range NEURON_MIN..NEURON_MAX (-1.0..1.0). The
-   output value for each neuron is stored in Indiv::neurons[] and survives from
-   one simStep to the next. (For example, a neuron that feeds itself will use
-   its output value that was latched from the previous simStep.) Inputs to the
-   neurons are summed each simStep in a temporary container and then discarded
-   after the neurons' outputs are computed.
-   
-   action (output) neurons - each takes inputs from sensors or other internal
-   neurons; In this function, each has an output value in an arbitrary range
-   (because they are the raw sums of zero or more weighted inputs).
-   The values of the action neurons are saved in local container
-   actionLevels[] which is returned to the caller by value (thanks RVO).
-   ********************************************************************************/
-
+  /**
+    * This function does a neural net feed-forward operation, from sensor (input) neurons
+    * through internal neurons to action (output) neurons. The feed-forward
+    * calculations are evaluated once each simulator step (simStep).
+    * 
+    * There is no back-propagation in this simulator. Once an individual's neural net
+    * brain is wired at birth, the weights and topology do not change during the
+    * individual's lifetime.
+    * 
+    * The neurons list contains internal neurons, and the connections list
+    * holds the connections between the neurons.
+    * 
+    * We have three types of neurons:
+    * 
+    * input sensors - each gives a value in the range (0.0..1.0).
+    * Values are obtained from getSensor().
+    * 
+    * internal neurons - each takes inputs from sensors or other internal neurons;
+    * each has output value in the range (-1.0..1.0). The output value for each neuron
+    * is stored in the neurons list and survives from one simStep to the next. 
+    * (For example, a neuron that feeds itself will use its output value that was
+    * latched from the previous simStep.) Inputs to the neurons are summed each simStep
+    * in a temporary container and then discarded after the neurons' outputs are computed.
+    * 
+    * action (output) neurons - each takes inputs from sensors or other internal
+    * neurons; In this function, each has an output value in an arbitrary range
+    * (because they are the raw sums of zero or more weighted inputs).
+    * The values of the action neurons are saved in local container
+    * actionLevels[] which is returned to the caller by value (thanks RVO).
+    */
   public double[] feedForward(int simStep)
   {
-    //assert neurons.size() > 0 :
-    //neurons.size();
     // This container is used to return values for all the action outputs. This array
     // contains one value per action neuron, which is the sum of all its weighted
     // input connections. The sum has an arbitrary range. Return by value assumes compiler
     // return value optimization.
-    double[] actionLevels = new double[CreatureAction.NUM_ACTIONS.ordinal()];
+    double[] actionLevels = new double[CreatureAction.values().length];
     Arrays.fill(actionLevels, 0.0);
 
 
@@ -238,11 +233,11 @@ class NeuralNet {
       int origTargetSource = connection.getTargetSource();
       connection.setSensorSource((short)(connection.getSensorSource() % ((NeuronType.NEURON == connection.getSensor()) ?
         (int)Parameters.MAX_NUMBER_NEURONS.getValue() :
-        Sensor.NUM_SENSES.ordinal())));
+        Sensor.values().length)));
 
       connection.setTargetSource((short)(connection.getTargetSource() % ((NeuronType.NEURON == connection.getTarget())?
         (int)Parameters.MAX_NUMBER_NEURONS.getValue() :
-        CreatureAction.NUM_ACTIONS.ordinal())));
+        CreatureAction.values().length)));
 
       if (origSensorSource != connection.getSensorSource())
         Parameters.debugOutput("Had to renumber sensor connection:%s, (%d > %d)\n", connection, origSensorSource, connection.getSensorSource());
@@ -415,7 +410,6 @@ class NeuralNet {
 
   // ** TESTS **
   public void allTests() {
-    //test1();
     testGenomeToNN();
   }
 
@@ -449,37 +443,6 @@ class NeuralNet {
 
       System.out.printf("Num survivors:%d!\n", numberSurvivors);
     }
-  }
-
-
-  private void test1() {
-    System.out.println(getMethod());
-    NeuralNetwork brain = new MultiLayerPerceptron(Sensor.NUM_SENSES.ordinal(), (int)Parameters.MAX_NUMBER_NEURONS.getValue(), CreatureAction.NUM_ACTIONS.ordinal());
-    IterativeLearning i = (IterativeLearning)(brain.getLearningRule());
-    i.setMaxIterations(5);
-    DataSet trainingSet =
-      new DataSet(Sensor.NUM_SENSES.ordinal(), CreatureAction.NUM_ACTIONS.ordinal());
-    // add training data to training set (logical OR function)
-
-    trainingSet. add(new DataSetRow (new Random().doubles(Sensor.NUM_SENSES.ordinal()).toArray(),
-      new Random().doubles(CreatureAction.NUM_ACTIONS.ordinal()).toArray()));
-    trainingSet. add(new DataSetRow (new Random().doubles(Sensor.NUM_SENSES.ordinal()).toArray(),
-      new Random().doubles(CreatureAction.NUM_ACTIONS.ordinal()).toArray()));
-    trainingSet. add(new DataSetRow (new Random().doubles(Sensor.NUM_SENSES.ordinal()).toArray(),
-      new Random().doubles(CreatureAction.NUM_ACTIONS.ordinal()).toArray()));
-    trainingSet. add(new DataSetRow (new Random().doubles(Sensor.NUM_SENSES.ordinal()).toArray(),
-      new Random().doubles(CreatureAction.NUM_ACTIONS.ordinal()).toArray()));
-    trainingSet. add(new DataSetRow (new Random().doubles(Sensor.NUM_SENSES.ordinal()).toArray(),
-      new Random().doubles(CreatureAction.NUM_ACTIONS.ordinal()).toArray()));
-    trainingSet. add(new DataSetRow (new Random().doubles(Sensor.NUM_SENSES.ordinal()).toArray(),
-      new Random().doubles(CreatureAction.NUM_ACTIONS.ordinal()).toArray()));
-    trainingSet. add(new DataSetRow (new Random().doubles(Sensor.NUM_SENSES.ordinal()).toArray(),
-      new Random().doubles(CreatureAction.NUM_ACTIONS.ordinal()).toArray()));
-    // learn the training set
-    brain.learn(trainingSet);
-    // save the trained network into file
-    //brain.save("or_perceptron.nnet");
-    // System.out.println("The Brain:"+brain);
   }
 }
 

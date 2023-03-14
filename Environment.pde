@@ -395,20 +395,20 @@ class Environment {
   }
 
   void displaySensorActionReferenceCounts() {
-    int[] sensorCounts = new int[Sensor.NUM_SENSES.ordinal()];
-    int[] actionCounts = new int[CreatureAction.NUM_ACTIONS.ordinal()];
+    int[] sensorCounts = new int[Sensor.values().length];
+    int[] actionCounts = new int[CreatureAction.values().length];
 
     for (int index = 0; index < populationSize(); ++index) {
       Creature creature = at(index);
       if (creature.isAlive()) {
         for (Gene gene : creature.getBrain().getConnections()) {
           if (gene.getSensor() == NeuronType.SENSOR) {
-            assert gene.getSensorSource() >= 0 && gene.getSensorSource() < Sensor.NUM_SENSES.ordinal() :
+            assert gene.getSensorSource() >= 0 && gene.getSensorSource() < Sensor.values().length :
             String.format("large or negative sensorSource:%d", gene.getSensorSource());
             ++sensorCounts[gene.getSensorSource()];
           }
           if (gene.getTarget() == NeuronType.ACTION) {
-            assert gene.getTargetSource() >= 0 && gene.getTargetSource() < CreatureAction.NUM_ACTIONS.ordinal() :
+            assert gene.getTargetSource() >= 0 && gene.getTargetSource() < CreatureAction.values().length :
             String.format("large or negative targetSource:%d", gene.getTargetSource());
             ++actionCounts[gene.getTargetSource()];
           }
