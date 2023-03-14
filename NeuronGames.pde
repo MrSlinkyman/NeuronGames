@@ -19,7 +19,7 @@ int simStep = 0;
 int mouseNumber = 0;
 AtomicInteger murderCount = new AtomicInteger();
 Environment theEnvironment;
-List<List<Genome>> historyOfTheWorld = new ArrayList<List<Genome>>();
+//List<List<Genome>> historyOfTheWorld = new ArrayList<List<Genome>>();
 long genTimer;
 String optionPrompt = "B - start\nL - load\nP - pause/unpause\nS - save\nT - toggle display\nC - toggle Challenge display\nX - exit";
 
@@ -100,7 +100,7 @@ void draw() {
       if (numberSurvivors == 0) {
         System.out.printf("No survivors, resetting generation! timeElapsed:%s", genTime);
         generations = 0;  // start over
-        historyOfTheWorld.clear();
+        //historyOfTheWorld.clear();
       } else {
         ++generations;
         System.out.printf("%d survivors(%.1f%%), timeElapsed:%s", numberSurvivors, 100.0*numberSurvivors/theEnvironment.populationSize(), genTime);
@@ -119,7 +119,7 @@ void draw() {
 
 private void storeHistory() {
   List<Genome> creatureGenomes = new ArrayList<Genome>();
-  historyOfTheWorld.add(creatureGenomes);
+  //historyOfTheWorld.add(creatureGenomes);
   for (Creature c : theEnvironment.getCreatures()) {
     creatureGenomes.add(new Genome(c.getGenome().getGenome()));
   }
@@ -191,25 +191,25 @@ void keyPressed() {
       // save the current history of the world to a file
       System.out.println("Saving....");
       PrintWriter output = createWriter(String.format("history-%1$tF-%1$ts.bin", Calendar.getInstance()));
-      for (int g = 0; g <historyOfTheWorld.size(); g++) {
-        String line = String.format("%d|", g);
-        for (Genome genome : historyOfTheWorld.get(g)) {
-          boolean comma = false;
-          line += "[";
-          for (Gene gene : genome.getGenome()) {
-            if (comma) line += ",";
-            for (byte b : gene.getBlueprint()) {
-              line += String.format("%02X", b);
-            }
-            comma = true;
-          }
-          line += "]";
-        }
-        output.println(line);
-      }
-      output.flush();
-      output.close();
-      System.out.println("...done");
+      //for (int g = 0; g <historyOfTheWorld.size(); g++) {
+      //  String line = String.format("%d|", g);
+      //  for (Genome genome : historyOfTheWorld.get(g)) {
+      //    boolean comma = false;
+      //    line += "[";
+      //    for (Gene gene : genome.getGenome()) {
+      //      if (comma) line += ",";
+      //      for (byte b : gene.getBlueprint()) {
+      //        line += String.format("%02X", b);
+      //      }
+      //      comma = true;
+      //    }
+      //    line += "]";
+      //  }
+      //  output.println(line);
+      //}
+      //output.flush();
+      //output.close();
+      //System.out.println("...done");
       break;
     }
   case 's':
@@ -369,12 +369,12 @@ public RunMode startSimulator(File file) {
   }
 
   //int index = Math.abs(new Random().nextInt(theEnvironment.populationSize()));
-  historyOfTheWorld.clear();
-  List<Genome> creatureGenomes = new ArrayList<Genome>();
-  historyOfTheWorld.add(creatureGenomes);
-  for (Creature c : theEnvironment.getCreatures()) {
-    creatureGenomes.add(new Genome(c.getGenome().getGenome()));
-  }
+  //historyOfTheWorld.clear();
+  //List<Genome> creatureGenomes = new ArrayList<Genome>();
+  //historyOfTheWorld.add(creatureGenomes);
+  //for (Creature c : theEnvironment.getCreatures()) {
+  //  creatureGenomes.add(new Genome(c.getGenome().getGenome()));
+  //}
   // Define atomic integer to count the number of deaths
 
   // Start parallel section
