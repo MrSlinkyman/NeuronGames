@@ -1,4 +1,4 @@
-/** //<>//
+/**  //<>//
   * I means the action affects the individual internally (Creature)
   * W means the action also affects the environment (Environment or Grid)
   */

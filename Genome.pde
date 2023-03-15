@@ -263,6 +263,9 @@ class Genome {
     return str;
   }
 
+  /**
+   * @return 0.0 ... 1.0 where 0.0 is most similar, 1.0 is least similar.
+   */
   public double similarity(Genome comparison) {
     switch ((int)Parameters.GENOME_COMPARISON_METHOD.getValue()) {
     case 0:
@@ -310,6 +313,15 @@ class Genome {
       .map(StackWalker.StackFrame::getMethodName)).get());
   }
 
+  /**
+   * The jaro_winkler_distance() function is adapted from the C version at
+   * https://github.com/miguelvps/c/blob/master/jarowinkler.c
+   * under a GNU license, ver. 3. This comparison function is useful if
+   * the simulator allows genomes to change length, or if genes are allowed
+   * to relocate to different offsets in the genome. I.e., this function is
+   * tolerant of gaps, relocations, and genomes of unequal lengths.
+   * @return 0.0...1.0, where 0 is most similar, 1 is least similar.
+   */
   private double jaroWinklerDistance(Genome genome2) {
     int maxNumGenesToCompare = 20;
     double distance = 0;

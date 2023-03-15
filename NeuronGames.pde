@@ -22,8 +22,11 @@ Environment theEnvironment;
 //List<List<Genome>> historyOfTheWorld = new ArrayList<List<Genome>>();
 long genTimer;
 String optionPrompt = "B - start\nL - load\nP - pause/unpause\nS - save\nT - toggle display\nC - toggle Challenge display\nX - exit";
+PrintWriter epochLog;
 
 void setup() {
+  String fileName = String.format("simulation-%1$tF-%1$ts_%2$s", Calendar.getInstance(), (String)Parameters.EPOCH_FILE_POST.getValue());
+  epochLog = createWriter(fileName);
   theEnvironment = new Environment();
 
   colorMode(RGB, 255);
@@ -171,10 +174,10 @@ void keyPressed() {
     break;
   case 'c':
   case 'C':
-  {
-    toggleChallenge = !toggleChallenge;
-    break;
-  }
+    {
+      toggleChallenge = !toggleChallenge;
+      break;
+    }
   case 'p':
   case 'P':
     {
@@ -243,6 +246,12 @@ void keyPressed() {
     // shut down the simulation
     exit();
   }
+}
+
+void exit() {
+  epochLog.flush();
+  epochLog.close();
+  super.exit();
 }
 
 void saveGeneration(int generation, String fileName) {

@@ -176,6 +176,7 @@ class Environment {
     Parameters.debugOutput("End of Generation %d\n", generation);
     // TODO: Save stats to console or somewhere
 
+
     int numberSurvivors = spawnNewGeneration(generations, murderCount.get());
     if (numberSurvivors > 0 && (generation % (int)Parameters.GENOME_ANALYSIS_STRIDE.getValue() == 0)) {
       displaySampleGenomes((int)Parameters.DISPLAY_SAMPLE_GENOMES.getValue());
@@ -301,6 +302,7 @@ class Environment {
       parentGenomes.add(at(parent.getKey()).getGenome());
     }
 
+    appendEpochLog(generation, parentGenomes.size(), murderCount);
     if (!parentGenomes.isEmpty()) {
       initializeNewGeneration(parentGenomes, generation + 1);
     } else {
@@ -308,6 +310,61 @@ class Environment {
     }
 
     return parentGenomes.size();
+  }
+
+  /** 
+   * The epoch log contains one line per generation in a format that can be
+   * fed to graphlog.gp to produce a chart of the simulation progress.
+   */
+  void appendEpochLog(int generation, int numberSurvivors, int murderCount)
+  {
+
+  assert epochLog != null :
+    String.format("%s is not open", epochLog);
+
+    System.out.printf("gen:%d survivors:%d diversity:%.2f geneLength:%d murders:%d\n", generation, numberSurvivors, geneticDiversity(), averageGenomeLength(), murderCount);
+    epochLog.println(String.format("%d %d %.2f %d %d", generation, numberSurvivors, geneticDiversity(), averageGenomeLength(), murderCount));
+  }
+
+  private int averageGenomeLength()
+  {
+    Random rando = new Random();
+    int count = 100;
+    int numberSamples = 0;
+    int sum = 0;
+
+    while (count-- > 0) {
+      sum += at(rando.nextInt(populationSize())).getGenome().size();
+      ++numberSamples;
+    }
+
+    return sum / numberSamples;
+  }
+
+  /**
+   * Samples random pairs of individuals regardless if they are alive or not
+   * @return 0.0..1.0, 
+   */
+  private double geneticDiversity()
+  {
+    Random rando = new Random();
+    if (populationSize() < 2) {
+      return 0.0;
+    }
+
+    // count limits the number of genomes sampled for performance reasons.
+    int count = Math.min(1000, populationSize());    // TODO: !!! p.analysisSampleSize;
+    double numSamples = 0;
+    double similaritySum = 0.0;
+
+    while (count-- > 0) {
+      int index0 = rando.nextInt(populationSize()-1); // skip first and last elements
+      int index1 = index0 + 1;
+      similaritySum += at(index0).getGenome().similarity(at(index1).getGenome());
+      numSamples++;
+    }
+
+    return 1.0 - (similaritySum / numSamples);
   }
 
   /**
@@ -385,7 +442,7 @@ class Environment {
     for (int index = rando.nextInt(populationSize()); count > 0; index=rando.nextInt(populationSize())) {
       Creature c = at(index);
       if (c.isAlive()) {
-        System.out.printf("Individual:%s\niGraph:\n%s\n", c,c.toIGraph());
+        System.out.printf("Individual:%s\niGraph:\n%s\n", c, c.toIGraph());
         --count;
       }
     }

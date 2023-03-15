@@ -31,7 +31,7 @@ public enum Parameters {
     DELETION_RATIO(0.5d), // 0.0..1.0, default 0.5d
     SEXUAL_REPRODUCTION(true), // default true, determines if the sim should use 1 or 2 parents
     CHOOSE_PARENTS_BY_FITNESS(true), // default true
-    CHALLENGE(Challenge.PAIRS), // one of Challenge, default CORNER_WEIGHTED, fitness challenge
+    CHALLENGE(Challenge.RADIOACTIVE_WALLS), // one of Challenge, default CORNER_WEIGHTED, fitness challenge
     BARRIER_TYPE(BarrierType.SPOTS), // one of BarrierType, default NONE
     INITIAL_NEURON_OUTPUT(0.5d), // default Neuron output, default 0.5d
     BOUNDARY_TYPE(BoundaryType.BOUNDED), // one of BoundaryType, default BOUNDED, INFINITE currently NOT SUPPORTED
@@ -60,6 +60,7 @@ public enum Parameters {
     IMAGE_DIR("./images/"), // default ./images/, NOT USED
     GRAPH_LOG_UPDATE_COMMAND("/usr/bin/gnuplot --persist ./tools/graphlog.gp"), // NOT USED
     FULL_OUTPUT(false), // boolean, default false, NOT USED
+    EPOCH_FILE_POST("eopch-log.txt"), // file name, default "epoch-log.txt", generational stats
 
     // These are updated automatically and not set via the parameter file
     PARAMETER_CHANGE_GENERATION_NUMBER(0); // the most recent generation number that an automatic parameter change occurred at, NOT USED
