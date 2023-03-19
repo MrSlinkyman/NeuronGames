@@ -49,11 +49,11 @@ enum Sensor {
     enabled = false;
   }
   
-  Sensor(String text, String shortName) {
+  Sensor( String text, String shortName) {
     this(text, shortName, true);
   }
 
-  Sensor(String text, String shortName, boolean enabled) {
+  Sensor( String text, String shortName, boolean enabled) {
     this.text = text;
     this.shortName = shortName;
     this.enabled = enabled;

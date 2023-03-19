@@ -74,7 +74,7 @@ class Coordinate {
   // This is a utility function used when inspecting a local neighborhood around
   // some location. This function feeds each valid (in-bounds) location in the specified
   // neighborhood to the specified function. Locations include self (center of the neighborhood).
-  public void visitNeighborhood(double radius, Consumer<Coordinate> f) {
+  public void visitNeighborhood(final double radius, Consumer<Coordinate> f) {
     int xBound[] = new int[]{
       -(int)((boundaryType == BoundaryType.INFINITE)?radius:Math.min((int)radius, getX())),
       (int)((boundaryType == BoundaryType.INFINITE)?radius:Math.min((int)radius, (gridWidth - getX()) - 1))

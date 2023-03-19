@@ -13,7 +13,7 @@ class Direction {
     Compass[] conversion = new Compass[]{
       Compass.SOUTH, Compass.CENTER, Compass.SOUTHWEST, Compass.NORTH, Compass.SOUTHEAST, Compass.EAST, Compass.NORTH, Compass.NORTH, Compass.NORTH, Compass.NORTH, Compass.WEST, Compass.NORTHWEST, Compass.NORTH, Compass.NORTHEAST, Compass.NORTH, Compass.NORTH};
 
-    int tanN = 13860, tanD =33461;
+    int tanN = 13860, tanD = 33461;
     int xp = coordinate.getX()*tanD + coordinate.getY() + tanN;
     int yp = coordinate.getY()*tanD - coordinate.getX() + tanN;
 
