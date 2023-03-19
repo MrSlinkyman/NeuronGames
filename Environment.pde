@@ -10,6 +10,7 @@ class Environment {
   private List<Creature> creatures;
   private Grid grid;
   private Signals signals;
+  private int generationsWithNoSurvivors;
 
   // TODO: refactor to a getter/setter
   public int[] genomeInitialRange = new int[]{(int)Parameters.GENOME_INITIAL_LENGTH_MIN.getValue(), (int)Parameters.GENOME_INITIAL_LENGTH_MAX.getValue()};
@@ -42,6 +43,7 @@ class Environment {
     //  creatures.add(c);
     //}
     //return creatures.subList(1, creatures.size());
+    generationsWithNoSurvivors = 0;
   }
 
   public void initializeGeneration0(String fileToLoad) {
@@ -49,6 +51,7 @@ class Environment {
     grid.createBarrier();
     signals.zeroFill();
     creatures.clear();
+    generationsWithNoSurvivors = 0;
 
     // Add an empty creature at position 0 TODO is this right?
     creatures.add(null);
@@ -76,6 +79,7 @@ class Environment {
     grid.createBarrier();
     signals.zeroFill();
     creatures.clear();
+    generationsWithNoSurvivors = 0;
 
     // Add an empty creature at position 0 TODO is this right?
     creatures.add(null);
@@ -90,6 +94,7 @@ class Environment {
     grid.zeroFill();
     grid.createBarrier();
     signals.zeroFill();
+    generationsWithNoSurvivors = 0;
 
     if (parents.size() > 1) {
       for (int i = 0; i < populationSize(); i++) {
@@ -302,17 +307,27 @@ class Environment {
       parentGenomes.add(at(parent.getKey()).getGenome());
     }
 
+    int returnCount = 0;
     appendEpochLog(generation, parentGenomes.size(), murderCount);
     if (!parentGenomes.isEmpty()) {
       initializeNewGeneration(parentGenomes, generation + 1);
-    } else {
+      returnCount = parentGenomes.size();
+    } else if ((Challenge)Parameters.CHALLENGE.getValue() != Challenge.MAZE) {
       initializeGeneration0(populationSize());
+    } else {
+      // in the maze challenge, just let the generation go on unless it's been too long
+      System.out.printf("Maze Challenge: keep going!\n");
+      if (++generationsWithNoSurvivors > (int)Parameters.STEPS_PER_GENERATION.getValue()) {
+        initializeGeneration0(populationSize());
+      } else {
+        returnCount = populationSize();
+      }
     }
 
-    return parentGenomes.size();
+    return returnCount;
   }
 
-  /** 
+  /**
    * The epoch log contains one line per generation in a format that can be
    * fed to graphlog.gp to produce a chart of the simulation progress.
    */
@@ -343,7 +358,7 @@ class Environment {
 
   /**
    * Samples random pairs of individuals regardless if they are alive or not
-   * @return 0.0..1.0, 
+   * @return 0.0..1.0,
    */
   private double geneticDiversity()
   {
@@ -380,6 +395,7 @@ class Environment {
     deathQueue.add(deadCreature);
   }
   public void drainDeathQueue() {
+    if (deathQueue.size() == 0) return;
     for (Creature ghost : deathQueue) {
       grid.set(ghost.getLocation(), GridState.EMPTY);
       ghost.setAlive(false);
@@ -394,7 +410,7 @@ class Environment {
     moveQueue.add(new Object[]{creature, newLocation});
   }
   public void drainMoveQueue() {
-
+    if (moveQueue.size() == 0) return;
     for (Object[] record : moveQueue) {
       Creature creature = (Creature)record[0];
       if (creature.isAlive()) {

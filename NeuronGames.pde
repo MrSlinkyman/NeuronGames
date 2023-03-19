@@ -112,7 +112,7 @@ void draw() {
 
       storeHistory();
       display();
-      if (generations % (int)Parameters.GENOME_SAVE_STRIDE.getValue() == 0) saveGeneration(generations, String.format("autosave-generation-%2$d-%1$tF-%1$ts.bin", Calendar.getInstance(), generations));
+      if (generations > 0 && generations % (int)Parameters.GENOME_SAVE_STRIDE.getValue() == 0) saveGeneration(generations, String.format("autosave-generation-%2$d-%1$tF-%1$ts.bin", Calendar.getInstance(), generations));
     }
   } else {
     runMode = RunMode.STOP;

@@ -27,12 +27,12 @@ public enum Parameters {
     OSC_PERIOD(34),
 
     POINT_MUTATION_RATE(0.001d), // 0.0..1.0, default 0.001d
-    GENE_INSERTION_DELETION_RATE(0.0d), // 0.0..1.0, default 0.0d
+    GENE_INSERTION_DELETION_RATE(0.001d), // 0.0..1.0, default 0.0d
     DELETION_RATIO(0.5d), // 0.0..1.0, default 0.5d
     SEXUAL_REPRODUCTION(true), // default true, determines if the sim should use 1 or 2 parents
     CHOOSE_PARENTS_BY_FITNESS(true), // default true
-    CHALLENGE(Challenge.RADIOACTIVE_WALLS), // one of Challenge, default CORNER_WEIGHTED, fitness challenge
-    BARRIER_TYPE(BarrierType.SPOTS), // one of BarrierType, default NONE
+    CHALLENGE(Challenge.MAZE), // one of Challenge, default CORNER_WEIGHTED, fitness challenge
+    BARRIER_TYPE(BarrierType.MAZE), // one of BarrierType, default NONE
     INITIAL_NEURON_OUTPUT(0.5d), // default Neuron output, default 0.5d
     BOUNDARY_TYPE(BoundaryType.BOUNDED), // one of BoundaryType, default BOUNDED, INFINITE currently NOT SUPPORTED
 
@@ -107,7 +107,8 @@ public enum Challenge {
     PAIRS,
     LOCATION_SEQUENCE,
     ALTRUISM(.25, .25), // (circle location factor, radius factor)
-    ALTRUISM_SACRIFICE(.25); // radius factor
+    ALTRUISM_SACRIFICE(.25), // radius factor
+    MAZE(-1.0, -1.0); // Used in conjunction with BarrierType.MAZE, sets up (begin, end) challenge areas. (random start/end within maze[<0.0], set start [0.0...SIZE_X], end [0.0...SIZE_Y])
 
   double[] parameters;
 
@@ -140,7 +141,8 @@ public enum BarrierType {
     FIVE_BLOCKS_STAGGERED(2.0, 1.0/3.0), // blockSizeX, y-factor
     HORIZONTAL_BAR_CONSTANT(1.0/4.0, 3.0/4.0), // X-factor,Y-factor
     FLOATING_ISLANDS_RANDOM(3, 6), // margin, radius
-    SPOTS(5, 5); // numLocations, radius
+    SPOTS(5, 5), // numLocations, radius
+    MAZE(16.0, 16.0); // (cols, rows)
 
   private final double[] args;
 

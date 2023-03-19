@@ -645,6 +645,26 @@ class Creature {
         double distance = new Coordinate((int)(sizeX - radius), (int)(sizeY - radius)).subtract(location).length();
         return (distance <= radius)? success - distance/radius : failure;
       }
+    case MAZE:
+      {
+        int cols = (int)BarrierType.MAZE.getArg(0);
+        int rows = (int)BarrierType.MAZE.getArg(1);
+        MazeCell endCell = MazeInstance.getInstance().getEnd();
+        //int endCell = (int)Challenge.MAZE.getParameter(1);
+
+        int cellWidth = sizeX/cols;
+        int cellHeight = sizeY/rows;
+        int yMin = (rows - 1) * cellHeight;
+        int yMax = rows * cellHeight;
+        int xMin = endCell.getCol() * cellWidth;
+        int xMax = xMin + cellWidth;
+        // Show an end cell
+
+        if (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax) {
+          return success;
+        }
+        return failure;
+      }
     default:
       // Handle unknown challenge
     assert false :
