@@ -170,7 +170,9 @@ void keyPressed() {
   case 'b':
   case 'B':
     // Start the show with a random set of guys
+    System.out.printf("Starting simulation...");
     runMode = startSimulator();
+    System.out.printf("...Started");
     break;
   case 'c':
   case 'C':

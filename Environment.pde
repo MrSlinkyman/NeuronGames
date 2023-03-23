@@ -54,7 +54,7 @@ class Environment {
     generationsWithNoSurvivors = 0;
 
     // Add an empty creature at position 0 TODO is this right?
-    creatures.add(null);
+    //creatures.add(null);
 
     String[] generationData = loadStrings(fileToLoad);
     for (String population : generationData) {
@@ -82,7 +82,7 @@ class Environment {
     generationsWithNoSurvivors = 0;
 
     // Add an empty creature at position 0 TODO is this right?
-    creatures.add(null);
+    //creatures.add(null);
 
     // Add the rest of the creatures, initialized new
     for (int i = 0; i < population; i++) {
@@ -94,22 +94,22 @@ class Environment {
     grid.zeroFill();
     grid.createBarrier();
     signals.zeroFill();
-    generationsWithNoSurvivors = 0;
 
     if (parents.size() > 1) {
+      generationsWithNoSurvivors = 0;
       for (int i = 0; i < populationSize(); i++) {
         addCreature(new Creature(i, grid.findEmptyLocation(), new Genome(parents), this));
       }
     } else {
-      System.out.printf("No parents at generation%d\n", generation);
+      System.out.printf("No parents at generation:%d\n", generation);
     }
   }
 
   private void addCreature(Creature c) {
-    if (c.getIndex()+1 > populationSize()) {
+    if (c.getIndex() >= populationSize()) {
       creatures.add(c);
     } else {
-      creatures.set(c.getIndex()+1, c);
+      creatures.set(c.getIndex(), c);
     }
     grid.set(c.getLocation(), c.getIndex());
   }
@@ -316,7 +316,7 @@ class Environment {
       initializeGeneration0(populationSize());
     } else {
       // in the maze challenge, just let the generation go on unless it's been too long
-      System.out.printf("Maze Challenge: keep going!\n");
+      System.out.printf("Maze Challenge: keep going! generationsWithNoSurvivors:%d\n", generationsWithNoSurvivors);
       if (++generationsWithNoSurvivors > (int)Parameters.STEPS_PER_GENERATION.getValue()) {
         initializeGeneration0(populationSize());
       } else {
@@ -404,14 +404,18 @@ class Environment {
     deathQueue.clear();
   }
   public void queueForMove(Creature creature, Coordinate newLocation) {
-    assert creature.isAlive() :
-    creature;
+    assert creature.isAlive() : String.format("Creature isn't alive! %s", creature);
 
     moveQueue.add(new Object[]{creature, newLocation});
   }
   public void drainMoveQueue() {
     if (moveQueue.size() == 0) return;
+    int index = 0;
     for (Object[] record : moveQueue) {
+      if (record == null) {
+        System.out.printf("moveQueue has a null value: moveQueue Size:%d, index: %d\n", moveQueue.size(), index);
+        continue;
+      }
       Creature creature = (Creature)record[0];
       if (creature.isAlive()) {
         Coordinate newLocation = (Coordinate)record[1];
@@ -423,6 +427,7 @@ class Environment {
           creature.setLastMoveDirection(moveDirection);
         }
       }
+      index++;
     }
     moveQueue.clear();
   }
@@ -437,11 +442,11 @@ class Environment {
   }
 
   public int populationSize() {
-    return creatures.size()-1;
+    return creatures.size();
   }
   // Direct access:
   public Creature at(int index) {
-    return creatures.get(index+1);
+    return creatures.get(index);
   }
 
   public Grid getGrid() {

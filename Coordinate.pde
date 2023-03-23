@@ -37,8 +37,8 @@ class Coordinate {
     return this.x == other.x && this.y == other.y;
   }
 
-  public double length() {
-    return Math.sqrt(x*x + y*y);
+  public int length() {
+    return (int)Math.sqrt(x*x + y*y);
   }
 
   public int getX() {

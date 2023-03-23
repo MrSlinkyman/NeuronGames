@@ -175,7 +175,7 @@ class Creature {
         Coordinate otherLoc = location.add(lastMoveDirection);
         if (grid.isInBounds(otherLoc) && grid.isOccupiedAt(otherLoc)) {
           Creature indiv2 = environment.findCreature(otherLoc);
-          assert location.subtract(indiv2.getLocation()).length() == 1;
+          assert location.subtract(indiv2.getLocation()).length() == 1 : String.format("location subtraction is not 1:\nlocation:%s\notherLoc:%s\ncreature location:%s\ndiff:%d", location, otherLoc,indiv2.getLocation(), location.subtract(indiv2.getLocation()).length());
           environment.queueForDeath(indiv2);
         }
       }
