@@ -7,7 +7,7 @@ import java.util.EnumSet;
 public enum Parameters {
   AGENT_SIZE(4), // Sets the Creature size diameter for circle creatures, default 4
     SIZE_X(140), // > AGENT_SIZE * sqrt(POPULATION) so the creatures have somewhere to go, default 128
-    SIZE_Y(180), // > AGENT_SIZE * sqrt(POPULATION) so the creatures have somewhere to go, default 128
+    SIZE_Y(140), // > AGENT_SIZE * sqrt(POPULATION) so the creatures have somewhere to go, default 128
     POPULATION(2000), // >= 0, default 3000
     STEPS_PER_GENERATION(400), // > 0, default 300
     MAX_GENERATIONS(200000), // >= 0, default 200000

@@ -102,8 +102,8 @@ class NeuralNet {
         // start on the connections to the action outputs, so now it's time to
         // update and latch all the neuron outputs to their proper range (-1.0..1.0)
         for (int neuronIndex = 0; neuronIndex < neurons.size(); neuronIndex++) {
-          if (neurons.get(neuronIndex).driven) {
-            neurons.get(neuronIndex).output = (double)Math.tanh(neuronAccumulators[neuronIndex]);
+          if (neurons.get(neuronIndex).isDriven()) {
+            neurons.get(neuronIndex).setOutput((double)Math.tanh(neuronAccumulators[neuronIndex]));
           }
         }
         neuronOutputsComputed = true;
@@ -117,7 +117,7 @@ class NeuralNet {
       } else {
         assert conn.getSensorSource() < neurons.size() :
         String.format("neurons:%d <= sensorSource:%d, connection:%s, creature:%s", neurons.size(), conn.getSensorSource(), conn, creature);
-        inputVal = neurons.get(conn.getSensorSource()).output;
+        inputVal = neurons.get(conn.getSensorSource()).getOutput();
       }
 
       // Weight the connection's value and add to neuron accumulator or action accumulator.
