@@ -33,7 +33,7 @@ class Creature {
     this.responsiveness = (double)Parameters.RESPONSIVENESS.getValue();
     this.oscPeriod = (int)Parameters.OSC_PERIOD.getValue();
     this.longProbeDistance = (int)Parameters.LONG_PROBE_DISTANCE.getValue();
-    this.size = (int)Parameters.AGENT_SIZE.getValue();
+    this.size = (int)Configuration.AGENT_SIZE.getValue();
 
     initializeBrain(genome);
   }
@@ -175,7 +175,8 @@ class Creature {
         Coordinate otherLoc = location.add(lastMoveDirection);
         if (grid.isInBounds(otherLoc) && grid.isOccupiedAt(otherLoc)) {
           Creature indiv2 = environment.findCreature(otherLoc);
-          assert location.subtract(indiv2.getLocation()).length() == 1 : String.format("location subtraction is not 1:\nlocation:%s\notherLoc:%s\ncreature location:%s\ndiff:%d", location, otherLoc,indiv2.getLocation(), location.subtract(indiv2.getLocation()).length());
+          assert location.subtract(indiv2.getLocation()).length() == 1 :
+          String.format("location subtraction is not 1:\nlocation:%s\notherLoc:%s\ncreature location:%s\ndiff:%d", location, otherLoc, indiv2.getLocation(), location.subtract(indiv2.getLocation()).length());
           environment.queueForDeath(indiv2);
         }
       }
@@ -424,8 +425,8 @@ class Creature {
    * in this version, this returns -1.0 on failure, and a score of 0.0..1.0 if passed
    */
   public double passedSurvivalCriterion(Challenge challenge) {
-    int sizeX = (int)Parameters.SIZE_X.getValue();
-    int sizeY = (int)Parameters.SIZE_Y.getValue();
+    int sizeX = (int)Configuration.SIZE_X.getValue();
+    int sizeY = (int)Configuration.SIZE_Y.getValue();
 
     final double failure = -1.0;
     final double success = 1.0;
@@ -658,10 +659,23 @@ class Creature {
         int yMax = rows * cellHeight;
         int xMin = endCell.getCol() * cellWidth;
         int xMax = xMin + cellWidth;
-        // Show an end cell
 
         if (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax) {
+          // Are they in the end?
           return success;
+        } else if (location.getX() > cellWidth && location.getY() > cellHeight)
+        {
+          //// Have they moved away from the start and are close to the end?
+          //if ( location.getX() > sizeX-3*cellWidth && location.getY() > sizeY-3*cellHeight) {
+          //  // they are very close!
+          //  return .8;
+          //} else {
+          Coordinate endCoord = new Coordinate(sizeX-1, sizeY-1);
+          double locationDist = location.subtract(endCoord).length();
+          double maxDistance = new Coordinate(0, 0).subtract(endCoord).length();
+          double locDistanceDiff = maxDistance - locationDist;
+          return success*(locDistanceDiff/maxDistance);
+          //}
         }
         return failure;
       }
@@ -676,8 +690,8 @@ class Creature {
   // Returned sensor values range SENSOR_MIN..SENSOR_MAX
   public double getSensor(Sensor sensorNum, int simStep)
   {
-    int sizeX = (int)Parameters.SIZE_X.getValue();
-    int sizeY = (int)Parameters.SIZE_Y.getValue();
+    int sizeX = (int)Configuration.SIZE_X.getValue();
+    int sizeY = (int)Configuration.SIZE_Y.getValue();
     int steps = (int)Parameters.STEPS_PER_GENERATION.getValue();
     double sensorRadius = (double)Parameters.POPULATION_SENSOR_RADIUS.getValue();
     int barrierDistance = (int)Parameters.SHORT_PROBE_BARRIER_DISTANCE.getValue();

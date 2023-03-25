@@ -7,7 +7,7 @@ import java.util.stream.IntStream;
 import java.util.Calendar;
 
 void settings() {
-  size((int)Parameters.SIZE_X.getValue() * (int)Parameters.AGENT_SIZE.getValue(), (int)Parameters.SIZE_Y.getValue() * (int)Parameters.AGENT_SIZE.getValue());
+  size((int)Configuration.SIZE_X.getValue() * (int)Configuration.AGENT_SIZE.getValue(), (int)Configuration.SIZE_Y.getValue() * (int)Configuration.AGENT_SIZE.getValue());
 }
 
 final static int BACKGROUND = 0;
@@ -308,7 +308,7 @@ void mousePressed() {
     }
   case RIGHT:
     {
-      Coordinate mouseLocation = new Coordinate(mouseX/(int)Parameters.AGENT_SIZE.getValue(), mouseY/(int)Parameters.AGENT_SIZE.getValue());
+      Coordinate mouseLocation = new Coordinate(mouseX/(int)Configuration.AGENT_SIZE.getValue(), mouseY/(int)Configuration.AGENT_SIZE.getValue());
       System.out.printf("Gen:%d.%d, Mouse(%d, %d)==%s\n", generations, simStep, mouseX, mouseY, mouseLocation);
       if (!theEnvironment.getGrid().isOccupiedAt(mouseLocation)) return;
 
@@ -326,8 +326,8 @@ void mousePressed() {
 int[] getRealLocation(Creature creature) {
   Coordinate location = creature.getLocation();
   int[] realLocation = new int[]{
-    location.getX()*(int)Parameters.AGENT_SIZE.getValue()+(int)Parameters.AGENT_SIZE.getValue()/2,
-    location.getY()*(int)Parameters.AGENT_SIZE.getValue()+(int)Parameters.AGENT_SIZE.getValue()/2
+    location.getX()*(int)Configuration.AGENT_SIZE.getValue()+(int)Configuration.AGENT_SIZE.getValue()/2,
+    location.getY()*(int)Configuration.AGENT_SIZE.getValue()+(int)Configuration.AGENT_SIZE.getValue()/2
   };
 
   return realLocation;
@@ -365,14 +365,14 @@ int[] getRealLocation(Creature creature) {
  */
 public RunMode startSimulator(File file) {
   genTimer = System.currentTimeMillis();
-  theEnvironment.getGrid().initialize((int)Parameters.SIZE_X.getValue(), (int)Parameters.SIZE_Y.getValue());
-  theEnvironment.getSignals().initialize((int)Parameters.SIGNAL_LAYERS.getValue(), (int)Parameters.SIZE_X.getValue(), (int)Parameters.SIZE_Y.getValue());
+  theEnvironment.getGrid().initialize((int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());
+  theEnvironment.getSignals().initialize((int)Configuration.SIGNAL_LAYERS.getValue(), (int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());
   theEnvironment.initialize();
   murderCount.set(0);
 
 
   if (file == null) {
-    theEnvironment.initializeGeneration0((int)Parameters.POPULATION.getValue());
+    theEnvironment.initializeGeneration0((int)Configuration.POPULATION.getValue());
   } else {
     theEnvironment.initializeGeneration0(file.getAbsolutePath());
   }

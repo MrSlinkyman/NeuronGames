@@ -13,7 +13,7 @@ class Environment {
   private int generationsWithNoSurvivors;
 
   // TODO: refactor to a getter/setter
-  public int[] genomeInitialRange = new int[]{(int)Parameters.GENOME_INITIAL_LENGTH_MIN.getValue(), (int)Parameters.GENOME_INITIAL_LENGTH_MAX.getValue()};
+  public int[] genomeInitialRange = new int[]{(int)Configuration.GENOME_INITIAL_LENGTH_MIN.getValue(), (int)Configuration.GENOME_INITIAL_LENGTH_MAX.getValue()};
 
   Environment(int[] genomeRange) {
     this();
@@ -37,7 +37,7 @@ class Environment {
     //for (int i = 0; i < population+1; i++) creatures.add(null);
     //creatures.add(null);
     //for (int i = 0; i < population; i++) {
-    //  Coordinate location = new Coordinate().randomize((int)Parameters.SIZE_X.getValue(), (int)Parameters.SIZE_Y.getValue());
+    //  Coordinate location = new Coordinate().randomize((int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());
     //  Genome genome = new Genome(0, this).randomize();
     //  Creature c = new Creature(i, location, genome, this);
     //  creatures.add(c);
@@ -121,13 +121,13 @@ class Environment {
       // where X == 0. In the last half of the generation, the east wall is
       // radioactive, where X = the area width - 1. There's an exponential
       // falloff of the danger, falling off to zero at the arena half line.
-      int radioactiveX = (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue() * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Parameters.SIZE_X.getValue() - 1;
+      int radioactiveX = (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue() * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Configuration.SIZE_X.getValue() - 1;
 
       IntStream.range(0, populationSize()).parallel().forEach(index -> {
         Creature indiv = at(index);
         if (indiv.isAlive()) {
           int distanceFromRadioactiveWall = Math.abs(indiv.getLocation().getX() - radioactiveX);
-          if (distanceFromRadioactiveWall < (int)Parameters.SIZE_X.getValue() *Challenge.RADIOACTIVE_WALLS.getParameter(1)) {
+          if (distanceFromRadioactiveWall < (int)Configuration.SIZE_X.getValue() *Challenge.RADIOACTIVE_WALLS.getParameter(1)) {
             double chanceOfDeath = 1.0 / distanceFromRadioactiveWall;
             if (rando.nextDouble() < chanceOfDeath) {
               queueForDeath(indiv);
@@ -143,8 +143,8 @@ class Environment {
     if ((Challenge)Parameters.CHALLENGE.getValue() == Challenge.TOUCH_ANY_WALL) {
       for (int index = 0; index < populationSize(); index++) {
         Creature indiv = at(index);
-        if (indiv.getLocation().getX() == 0 || indiv.getLocation().getX() == (int)Parameters.SIZE_X.getValue() - 1
-          || indiv.getLocation().getY() == 0 || indiv.getLocation().getY() == (int)Parameters.SIZE_Y.getValue() - 1) {
+        if (indiv.getLocation().getX() == 0 || indiv.getLocation().getX() == (int)Configuration.SIZE_X.getValue() - 1
+          || indiv.getLocation().getY() == 0 || indiv.getLocation().getY() == (int)Configuration.SIZE_Y.getValue() - 1) {
           indiv.setChallengeBits(1);
         }
       }
@@ -217,9 +217,6 @@ class Environment {
         String.format("Creature at %d is null (creatures size:%d)", index, populationSize());
         double score = at(index).passedSurvivalCriterion( (Challenge)Parameters.CHALLENGE.getValue());
         // Save the parent genome if it results in valid neural connections
-        // ToDo: if the parents no longer need their genome record, we could
-        // possibly do a move here instead of copy, although it's doubtful that
-        // the optimization would be noticeable.
         if (score >= 0 && !at(index).getBrain().connections.isEmpty()) {
           parents.put(index, score);
         }

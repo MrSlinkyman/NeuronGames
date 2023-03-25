@@ -29,8 +29,10 @@ class Maze {
     }
     mazeStack = new Stack<MazeCell>();
     // select random cells for start and end positions
-    start = grid[(int) random(cols)][0];
-    end = grid[(int) random(cols)][rows-1];
+    //start = grid[(int) random(cols)][0];
+    //end = grid[(int) random(cols)][rows-1];
+    start = grid[0][0];
+    end = grid[cols-1][rows-1];
 
     // remove walls to create openings
     start.setWall(Wall.NORTH, false);

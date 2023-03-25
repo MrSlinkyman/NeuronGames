@@ -188,8 +188,8 @@ public class Signals {
   public void fade(int layerNum) {
     byte fadeAmount = 1;
     Layer layer = get(layerNum);
-    for (int x = 0; x < (int)Parameters.SIZE_X.getValue(); x++) {
-      for (int y = 0; y < (int)Parameters.SIZE_Y.getValue(); y++) {
+    for (int x = 0; x < (int)Configuration.SIZE_X.getValue(); x++) {
+      for (int y = 0; y < (int)Configuration.SIZE_Y.getValue(); y++) {
         if (layer.get(x).get(y) >= fadeAmount) {
           layer.get(x).set(y, (byte)(layer.get(x).get(y)-fadeAmount));
         } else {

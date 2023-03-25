@@ -55,10 +55,8 @@ class Genome {
       parent2Idx = rando.nextInt(parents.size());
     }
 
-    assert parent1Idx < parents.size() :
-    String.format("parent1Idx:%d, parents:%d", parent1Idx, parents.size());
-    assert parent2Idx < parents.size() :
-    String.format("parent2Idx:%d, parents:%d", parent2Idx, parents.size());
+    assert parent1Idx < parents.size() && parent2Idx < parents.size() :
+    String.format("parent1Idx:%d, parent2Idx:%d, parents:%d", parent1Idx, parent2Idx, parents.size());
 
     final Genome g1 = parents.get(parent1Idx);
     final Genome g2 = parents.get(parent2Idx);
@@ -113,7 +111,7 @@ class Genome {
     genome.applyPointMutations();
     assert !genome.isEmpty() :
     String.format("Mutations produced empty genome");
-    assert genome.size() <= (int)Parameters.GENOME_MAX_LENGTH.getValue() :
+    assert genome.size() <= (int)Configuration.GENOME_MAX_LENGTH.getValue() :
     String.format("new genome is too big:%d", genome.size());
 
     copyGenes(genome.genes);
@@ -206,7 +204,7 @@ class Genome {
           }
           genes = newGenes;
         }
-      } else if (genes.length < (int)Parameters.GENOME_MAX_LENGTH.getValue()) {
+      } else if (genes.length < (int)Configuration.GENOME_MAX_LENGTH.getValue()) {
         // insertion
         int indexToInsert = rando.nextInt(genes.length);
         Gene[] newGenes = new Gene[genes.length + 1];

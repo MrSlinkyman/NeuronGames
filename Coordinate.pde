@@ -3,8 +3,8 @@ import java.util.function.Consumer;
 
 class Coordinate {
   private int x, y;
-  private final int gridWidth=(int)Parameters.SIZE_X.getValue();
-  private final int gridHeight = (int)Parameters.SIZE_Y.getValue();
+  private final int gridWidth=(int)Configuration.SIZE_X.getValue();
+  private final int gridHeight = (int)Configuration.SIZE_Y.getValue();
   private final BoundaryType boundaryType = (BoundaryType)Parameters.BOUNDARY_TYPE.getValue();
 
   Coordinate(int x, int y) {

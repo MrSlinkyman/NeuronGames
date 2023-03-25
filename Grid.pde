@@ -55,10 +55,12 @@ class Grid {
   public Coordinate findEmptyLocation() {
     int maxX = data.length;
     int maxY = data[0].length;
-    if((Challenge)Parameters.CHALLENGE.getValue() == Challenge.MAZE){
+    if ((Challenge)Parameters.CHALLENGE.getValue() == Challenge.MAZE) {
       // Creature should randomize near the start
-      maxX /= 2;
-      maxY /=2;
+      //maxX /= 2;
+      //maxY /=2;
+      maxX = (int)(maxX/BarrierType.MAZE.getArg(0)) - 2;
+      maxY = (int)(maxY/BarrierType.MAZE.getArg(1)) - 1;
     }
     Coordinate location = new Coordinate().randomize(maxX, maxY);
     return isEmptyAt(location)?location:findEmptyLocation();
@@ -88,17 +90,12 @@ class Grid {
   public void display() {
     if (toggleDisplay) {
       Challenge challenge = (Challenge)Parameters.CHALLENGE.getValue();
-      int sizeX = (int)Parameters.SIZE_X.getValue();
-      int sizeY = (int)Parameters.SIZE_Y.getValue();
-      int size = (int)Parameters.AGENT_SIZE.getValue();
+      int sizeX = (int)Configuration.SIZE_X.getValue();
+      int sizeY = (int)Configuration.SIZE_Y.getValue();
+      int size = (int)Configuration.AGENT_SIZE.getValue();
       for (int x = 0; x < data.length; x++) {
         for (int y = 0; y < data[x].length; y++) {
           Coordinate location = new Coordinate(x, y);
-          if (isBarrierAt(location)) {
-            noStroke();
-            fill(255);
-            rect(location.getX()*size, location.getY()*size, size, size);
-          }
           // Calculate challenge space
           boolean showChallengeCell = false;
           color challengeCellColor = color(125);
@@ -232,10 +229,10 @@ class Grid {
                 // This challenge is handled in endOfSimStep(), where individuals may die
                 // at the end of any sim step. There is nothing else to do here at the
                 // end of a generation. All remaining alive become parents.
-                int radioactiveX = (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue() * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Parameters.SIZE_X.getValue() - 1;
+                int radioactiveX = (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue() * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Configuration.SIZE_X.getValue() - 1;
 
                 int distanceFromRadioactiveWall = Math.abs(location.getX() - radioactiveX);
-                if (distanceFromRadioactiveWall < (int)Parameters.SIZE_X.getValue() *Challenge.RADIOACTIVE_WALLS.getParameter(1)) {
+                if (distanceFromRadioactiveWall < (int)Configuration.SIZE_X.getValue() *Challenge.RADIOACTIVE_WALLS.getParameter(1)) {
                   double dropoff = 1.0 / distanceFromRadioactiveWall;
                   challengeCellColor = color(200, 10, 10, (int)(255.0*dropoff));
                   showChallengeCell = true;
@@ -330,7 +327,23 @@ class Grid {
                 int xMax = xMin + cellWidth;
                 // Show an end cell
 
-                showChallengeCell = (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax);
+                //showChallengeCell = (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax);
+
+                if (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax) {
+                  // Are they in the end?
+                  showChallengeCell = true;
+                } else if (location.getX() > cellWidth && location.getY() > cellHeight) {
+                  // Have they moved away from the start and are close to the end?
+                  Coordinate endCoord = new Coordinate(sizeX-1, sizeY-1);
+                  double locationDist = location.subtract(endCoord).length();
+                  double maxDistance = new Coordinate(0, 0).subtract(endCoord).length();
+                  double locDistanceDiff = maxDistance - locationDist;
+                  challengeCellColor = color(125, (int)(255.0 * (locDistanceDiff/maxDistance))
+
+                    //(Math.max(sizeX, sizeY)-location.subtract(new Coordinate(sizeX-1, sizeY-1)).length()/Math.max(sizeX, sizeY))
+                    );
+                  showChallengeCell = true;
+                }
                 break;
               }
             default:
@@ -343,6 +356,11 @@ class Grid {
               rect(location.getX()*size, location.getY()*size, size, size);
             }
           }
+          if (isBarrierAt(location)) {
+            noStroke();
+            fill(255);
+            rect(location.getX()*size, location.getY()*size, size, size);
+          }
         }
       }
     }
@@ -353,8 +371,8 @@ class Grid {
     barrierLocations.clear();
     barrierCenters.clear();  // Used only for some barrier types
 
-    int sizeX = (int)Parameters.SIZE_X.getValue();
-    int sizeY = (int)Parameters.SIZE_Y.getValue();
+    int sizeX = (int)Configuration.SIZE_X.getValue();
+    int sizeY = (int)Configuration.SIZE_Y.getValue();
     double xFactor = (barrierType.hasArgs()) ? barrierType.getArg(0) : 0;
     double yFactor = (barrierType.hasArgs()) ? barrierType.getArg(1) : 0;
     switch(barrierType) {
@@ -502,11 +520,10 @@ class Grid {
         int rows = (int)yFactor;
         int cellWidth = sizeX / cols;
         int cellHeight = sizeY / rows;
-        System.out.printf("Using a maze with (cols, rows) == (%d, %d)\n", cols, rows);
         /*
         Build the maze and create barriers according to the maze information
          */
-        Maze maze = MazeInstance.getInstance(NeuronGames.this,cols, rows);
+        Maze maze = MazeInstance.getInstance(NeuronGames.this, cols, rows);
         for (int i = 0; i < maze.getCols(); i++) {
           for (int j = 0; j < maze.getRows(); j++) {
             MazeCell cell = maze.getCell(i, j);
@@ -603,8 +620,8 @@ class Grid {
 
   public boolean isBorder(Coordinate loc) {
     return
-      loc.getX() == 0 || loc.getX() == (int)Parameters.SIZE_X.getValue() - 1 ||
-      loc.getY() == 0 || loc.getY() == (int)Parameters.SIZE_Y.getValue() - 1;
+      loc.getX() == 0 || loc.getX() == (int)Configuration.SIZE_X.getValue() - 1 ||
+      loc.getY() == 0 || loc.getY() == (int)Configuration.SIZE_Y.getValue() - 1;
   }
 
   /**
