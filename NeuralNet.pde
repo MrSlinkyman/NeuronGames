@@ -177,7 +177,6 @@ class NeuralNet {
   public List<Gene> createConnections(List<Gene> connectionList, Map<Short, Node> nodeMap) {
     List<Gene> newConnections = new ArrayList<Gene>(connectionList.size());
 
-    // TODO this area is causing weird null pointer exceptions
     // First, the connections from sensor or neuron to a neuron
     for (Gene conn : connectionList) {
       if (conn.target == NeuronType.NEURON) {
@@ -453,14 +452,39 @@ enum NeuronType {
 }
 
 class CreatureNeuron {
-  // TODO create getters/setters
-  int index;
-  boolean driven;
-  double output;
+  private int index;
+  private boolean driven;
+  private double output;
 
   CreatureNeuron (int index, boolean driven, double output) {
     this.index = index; 
     this.driven = driven;
+    this.output = output;
+  }
+
+  // Getters
+  public int getIndex() {
+    return index;
+  }
+
+  public boolean isDriven() {
+    return driven;
+  }
+
+  public double getOutput() {
+    return output;
+  }
+
+  // Setters
+  public void setIndex(int index) {
+    this.index = index;
+  }
+
+  public void setDriven(boolean driven) {
+    this.driven = driven;
+  }
+
+  public void setOutput(double output) {
     this.output = output;
   }
 
