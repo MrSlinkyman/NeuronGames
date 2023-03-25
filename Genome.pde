@@ -267,13 +267,13 @@ class Genome {
    * @return 0.0 ... 1.0 where 0.0 is most similar, 1.0 is least similar.
    */
   public double similarity(Genome comparison) {
-    switch ((int)Parameters.GENOME_COMPARISON_METHOD.getValue()) {
-    case 0:
+    switch ((ComparisonMethod)Parameters.GENOME_COMPARISON_METHOD.getValue()) {
+    case JARO_WINKLER:
       return jaroWinklerDistance(comparison);
-      //case 1:
-      //    return hammingDistanceBits(comparison);
-      //case 2:
-      //    return hammingDistanceBytes(comparison);
+    case HAMMING_BITS:
+      return hammingDistanceBits(comparison);
+    case HAMMING_BYTES:
+      return hammingDistanceBytes(comparison);
     default:
       throw new AssertionError("Invalid genome comparison method");
     }
@@ -377,6 +377,55 @@ class Genome {
     distance = ((matchingGenes / thisLength) + (matchingGenes / thatLength) + ((matchingGenes - transpositions) / matchingGenes)) / 3.0;
 
     return distance;
+  }
+
+  double hammingDistanceBits(final Genome genome2) {
+    assert size() == genome2.size() :
+    String.format("Similarity comparison with genomes of differing length: %s, %s", this, genome2);
+
+    final Gene[] p1 = getGenome();
+    final Gene[] p2 = genome2.getGenome();
+    final int numElements = size();
+    final int bytesPerElement = p1[0].getBlueprint().length*Integer.BYTES;
+    final int lengthBytes = numElements * bytesPerElement;
+    final int lengthBits = lengthBytes * 8;
+    int bitCount = 0;
+
+    for (int index = 0; index < size(); index++) {
+      for (int gIndex = 0; gIndex < p1[index].getBlueprint().length; gIndex++) {
+        bitCount += Integer.bitCount(p1[index].getBlueprint()[gIndex] ^ p2[index].getBlueprint()[gIndex]);
+      }
+    }
+
+    // For two completely random bit patterns, about half the bits will differ,
+    // resulting in c. 50% match. We will scale that by 2X to make the range
+    // from 0 to 1.0. We clip the value to 1.0 in case the two patterns are
+    // negatively correlated for some reason.
+    return 1.0 - Math.min(1.0, (2.0 * bitCount) / (double) lengthBits);
+  }
+
+  double hammingDistanceBytes(final Genome genome2) {
+    assert size() == genome2.size() :
+    String.format("Similarity comparison with genomes of differing length: %s, %s", this, genome2);
+
+    final Gene[] p1 = getGenome();
+    final Gene[] p2 = genome2.getGenome();
+    final int numElements = size();
+    final int bytesPerElement = p1[0].getBlueprint().length*Integer.BYTES;
+    final int lengthBytes = numElements * bytesPerElement;
+    int byteCount = 0;
+
+    for (int index = 0; index < size(); index++) {
+      for (int gIndex = 0; gIndex < p1[index].getBlueprint().length; gIndex++) {
+        byteCount += (p1[index].getBlueprint()[gIndex] == p2[index].getBlueprint()[gIndex])?1:0;
+      }
+    }
+
+    // For two completely random bit patterns, about half the bits will differ,
+    // resulting in c. 50% match. We will scale that by 2X to make the range
+    // from 0 to 1.0. We clip the value to 1.0 in case the two patterns are
+    // negatively correlated for some reason.
+    return byteCount / (double) lengthBytes;
   }
 
   // ** TESTS **
