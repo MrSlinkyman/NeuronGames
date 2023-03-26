@@ -21,7 +21,14 @@ AtomicInteger murderCount = new AtomicInteger();
 Environment theEnvironment;
 //List<List<Genome>> historyOfTheWorld = new ArrayList<List<Genome>>();
 long genTimer;
-String optionPrompt = "B - start\nL - load\nP - pause/unpause\nS - save\nT - toggle display\nC - toggle Challenge display\nX - exit";
+String optionPrompt =
+  "B or b - Start Simulation\n"+
+  "C or c - Toggle Challenge display\n"+
+  "L or l - Load creatures\n"+
+  "M or m - m:Save barriers, M:Load barriers\n"+
+  "P or p - pause/unpause\n"+
+  "S or s - Save Creatures to file\n"+
+  "T or t - Toggle display\nX or x - exit";
 PrintWriter epochLog;
 
 void setup() {
@@ -142,17 +149,17 @@ private String getGenTime() {
 }
 
 public void display() {
-  if (toggleDisplay) {
-    background(BACKGROUND);
-    pushMatrix();
-    theEnvironment.getGrid().display();
-    for (Creature c : theEnvironment.getCreatures()) {
-      if (c != null && c.isAlive()) {
-        c.display();
-      }
+  if (!toggleDisplay) return;
+
+  background(BACKGROUND);
+  pushMatrix();
+  theEnvironment.getGrid().display();
+  for (Creature c : theEnvironment.getCreatures()) {
+    if (c != null && c.isAlive()) {
+      c.display();
     }
-    popMatrix();
   }
+  popMatrix();
 }
 
 // Leaving this here to remind me not to do this
@@ -189,34 +196,6 @@ void keyPressed() {
       else noLoop();
       break;
     }
-  case 'h':
-  case 'H':
-    {
-      if (runMode != RunMode.PAUSE) break;
-      // save the current history of the world to a file
-      System.out.println("Saving....");
-      PrintWriter output = createWriter(String.format("history-%1$tF-%1$ts.bin", Calendar.getInstance()));
-      //for (int g = 0; g <historyOfTheWorld.size(); g++) {
-      //  String line = String.format("%d|", g);
-      //  for (Genome genome : historyOfTheWorld.get(g)) {
-      //    boolean comma = false;
-      //    line += "[";
-      //    for (Gene gene : genome.getGenome()) {
-      //      if (comma) line += ",";
-      //      for (byte b : gene.getBlueprint()) {
-      //        line += String.format("%02X", b);
-      //      }
-      //      comma = true;
-      //    }
-      //    line += "]";
-      //  }
-      //  output.println(line);
-      //}
-      //output.flush();
-      //output.close();
-      //System.out.println("...done");
-      break;
-    }
   case 's':
   case 'S':
     {
@@ -240,7 +219,19 @@ void keyPressed() {
       background(255);
       fill(0);
       textSize(20);
-      text("Simulating in the background...", 50, 50);
+      text("Simulating in the background...\n"+optionPrompt, 50, 50);
+      break;
+    }
+  case 'm':
+    {
+      if (runMode != RunMode.PAUSE) break;
+      // Save the barriers!
+      theEnvironment.getGrid().saveBarrierState();
+      break;
+    }
+  case 'M':
+    {
+      selectInput("Select a file with barriers to load", "barrierFileSelected");
       break;
     }
   case 'x':
@@ -294,6 +285,21 @@ void fileSelected(File selection) {
     runMode = startSimulator(selection);
   }
 }
+
+void barrierFileSelected(File selection) {
+  if (selection == null) {
+    System.out.printf("No file was selected, moving on\n");
+  } else {
+    System.out.printf("User selected %s for barriers\n", selection.getAbsolutePath());
+    //String creatureFile = "generation-164-2023-03-10-1678504779.bin";
+    //String creatureFile = "circle trained generation-10076-2023-03-09-1678415342.bin";
+    // load the guys and start the show
+    // runMode = startSimulator("filename");
+    toggleDisplay = true;
+    theEnvironment.getGrid().loadBarriers(selection.getAbsolutePath());
+  }
+}
+
 
 void mousePressed() {
   switch(mouseButton) {

@@ -315,6 +315,7 @@ class Grid {
               }
             case MAZE:
               {
+                // TODO when a new maze is loaded using the loadBarriers method, make sure to also populate the maze
                 int cols = (int)BarrierType.MAZE.getArg(0);
                 int rows = (int)BarrierType.MAZE.getArg(1);
                 MazeCell endCell = MazeInstance.getInstance().getEnd();
@@ -625,6 +626,50 @@ class Grid {
   }
 
   /**
+   * Loads barriers, good for mazes, to the current grid.
+   * Note: This does not care about creatures that are currently loaded (yet), 
+   *       so it's good to reset creatures to a saved set of creatures if loading barriers
+   * Note: This will also probably fail if the barriers are bigger than the current grid
+   */
+  public boolean loadBarriers(String filename) {
+    String[] barrierData = loadStrings(filename);
+    for (int y = 0; y < barrierData.length; y++) {
+      byte[] entries = barrierData[y].getBytes();
+      for (int x = 0; x < entries.length; x++) {
+        Coordinate location = new Coordinate(x, y);
+        char value = (char)entries[x];
+        if(isOccupiedAt(location)) {
+          // TODO there is a creature in this spot, make sure to kill it properly before just overwriting the value
+          // pseudo: tell environment that this creature is now gone
+        }
+        set(location, (value == '1')?GridState.BARRIER:GridState.EMPTY);
+      }
+    }
+    return true;
+  }
+
+  public boolean saveBarrierState() {
+    String fileName = String.format("barriers-%1$tF-%1$ts.bin", Calendar.getInstance());
+    System.out.printf("Saving barrier state to %s...", fileName);
+    PrintWriter output = createWriter(fileName);
+
+    // We have a maze, just need to save the barriers
+    for (int y = 0; y < data[0].length; y++) {
+      StringBuffer line = new StringBuffer();
+      for (int x = 0; x < data.length; x++) {
+        Coordinate gridLocation = new Coordinate(x, y);
+        line.append( isBarrierAt(gridLocation)?'1':'0');
+      }
+      output.println(line);
+    }
+
+    output.flush();
+    output.close();
+    System.out.println("...done");
+    return true;
+  }
+
+  /**
    Converts the population along the specified axis to the sensor range. The
    locations of neighbors are scaled by the inverse of their distance times
    the positive absolute cosine of the difference of their angle and the
@@ -708,7 +753,6 @@ class Grid {
     return sensorVal;
   }
 }
-
 
 enum GridState {
   EMPTY(0),
