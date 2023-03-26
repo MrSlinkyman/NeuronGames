@@ -152,13 +152,13 @@ class Genome {
       double chance = rando.nextDouble();
       Gene targetGene = genes[elementIndex];
       if (chance < 0.2) { // sourceType
-        targetGene.setSensor(targetGene.getSensor() == NeuronType.SENSOR?NeuronType.NEURON:NeuronType.SENSOR);
+        targetGene.setSensor(targetGene.getSource() == NeuronType.SENSOR?NeuronType.NEURON:NeuronType.SENSOR);
       } else if (chance < 0.4) { // sinkType
         targetGene.setTarget(targetGene.target == NeuronType.NEURON?NeuronType.ACTION:NeuronType.NEURON);
       } else if (chance < 0.6) { // sourceNum
-        targetGene.setSensorSource((short)Math.abs(targetGene.getSensorSource() ^ bitIndex8));
+        targetGene.setSourceNumber((short)Math.abs(targetGene.getSourceNumber() ^ bitIndex8));
       } else if (chance < 0.8) { // sinkNum
-        targetGene.setTargetSource((short)Math.abs(targetGene.getTargetSource() ^ bitIndex8));
+        targetGene.setTargetNumber((short)Math.abs(targetGene.getTargetNumber() ^ bitIndex8));
       } else { // weight
 
         targetGene.weight ^= (1 << rando.ints(1, 1, 15).toArray()[0]);

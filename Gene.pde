@@ -12,10 +12,10 @@
  *
  */
 class Gene {
-  private NeuronType sensor;
-  private short sensorSource;
+  private NeuronType source;
+  private short sourceNumber;
   private NeuronType target;
-  private short targetSource;
+  private short targetNumber;
   private short weight;
   private byte[] startingBlueprint;
 
@@ -60,14 +60,14 @@ class Gene {
 
   private void makeGene(byte[] gene) {
     this.startingBlueprint = gene;
-    this.sensor = (gene[0] & 0x80) == 0? NeuronType.NEURON : NeuronType.SENSOR;
-    this.sensorSource = (short)Math.abs((gene[0] & 0x7F));
-  assert sensorSource >= 0 :
-    String.format("found a negative sensorSource:%d", sensorSource);
+    this.source = (gene[0] & 0x80) == 0? NeuronType.NEURON : NeuronType.SENSOR;
+    this.sourceNumber = (short)Math.abs((gene[0] & 0x7F));
+  assert sourceNumber >= 0 :
+    String.format("found a negative sourceNumber:%d", sourceNumber);
     this.target = (gene[1] & 0x80) == 0? NeuronType.ACTION : NeuronType.NEURON;
-    this.targetSource = (short)Math.abs(gene[1] & 0x7F);
-  assert targetSource >= 0 :
-    String.format("found a negative targetSource:%d", targetSource);
+    this.targetNumber = (short)Math.abs(gene[1] & 0x7F);
+  assert targetNumber >= 0 :
+    String.format("found a negative targetNumber:%d", targetNumber);
     this.weight = (short)(((gene[2] & 0xFF) <<8) | (gene[3] & 0xFF) );
   }
 
@@ -85,8 +85,8 @@ class Gene {
 
   public byte[] getBlueprint() {
     byte[] blueprint = new byte[4];
-    blueprint[0] = (byte)(((sensor == NeuronType.SENSOR)?0x80:0x00) | sensorSource & 0x7F);
-    blueprint[1] = (byte)(((target == NeuronType.NEURON)?0x80:0x00) | targetSource & 0x7F);
+    blueprint[0] = (byte)(((source == NeuronType.SENSOR)?0x80:0x00) | sourceNumber & 0x7F);
+    blueprint[1] = (byte)(((target == NeuronType.NEURON)?0x80:0x00) | targetNumber & 0x7F);
     blueprint[2] = (byte)(weight >> 8);
     blueprint[3] = (byte)(weight & 0xFF);
     return blueprint;
@@ -103,18 +103,18 @@ class Gene {
     }
     str +="]=>";
     str+=String.format("[s(%s:%s), t(%s:%s), w:%f]",
-      sensor,
-      (NeuronType.SENSOR == sensor)?Sensor.values()[sensorSource]:String.format("%d", sensorSource),
+      source,
+      (NeuronType.SENSOR == source)?Sensor.values()[sourceNumber]:String.format("%d", sourceNumber),
       target,
-      (NeuronType.ACTION == target)?CreatureAction.values()[targetSource]:String.format("%d", targetSource),
+      (NeuronType.ACTION == target)?CreatureAction.values()[targetNumber]:String.format("%d", targetNumber),
       getWeight());
     return str;
   }
 
   public String toIGraph() {
     return String.format("%s %s %d",
-      (sensor == NeuronType.SENSOR)?         Sensor.values()[sensorSource].getShortName(): String.format("N%d", sensorSource),
-      (target == NeuronType.ACTION)? CreatureAction.values()[targetSource].getShortName(): String.format("N%d", targetSource),
+      (source == NeuronType.SENSOR)?         Sensor.values()[sourceNumber].getShortName(): String.format("N%d", sourceNumber),
+      (target == NeuronType.ACTION)? CreatureAction.values()[targetNumber].getShortName(): String.format("N%d", targetNumber),
       weight);
   }
 
@@ -128,20 +128,20 @@ class Gene {
     return gene;
   }
 
-  public NeuronType getSensor() {
-    return sensor;
+  public NeuronType getSource() {
+    return source;
   }
 
-  public void setSensor(NeuronType sensor) {
-    this.sensor = sensor;
+  public void setSensor(NeuronType source) {
+    this.source = source;
   }
 
-  public short getSensorSource() {
-    return sensorSource;
+  public short getSourceNumber() {
+    return sourceNumber;
   }
 
-  public void setSensorSource(short sensorSource) {
-    this.sensorSource = sensorSource;
+  public void setSourceNumber(short sourceNumber) {
+    this.sourceNumber = sourceNumber;
   }
 
   public NeuronType getTarget() {
@@ -152,12 +152,12 @@ class Gene {
     this.target = target;
   }
 
-  public short getTargetSource() {
-    return targetSource;
+  public short getTargetNumber() {
+    return targetNumber;
   }
 
-  public void setTargetSource(short targetSource) {
-    this.targetSource = targetSource;
+  public void setTargetNumber(short targetNumber) {
+    this.targetNumber = targetNumber;
   }
 
   public void setWeight(short weight) {

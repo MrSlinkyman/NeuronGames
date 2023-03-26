@@ -688,7 +688,7 @@ class Creature {
   }
 
   // Returned sensor values range SENSOR_MIN..SENSOR_MAX
-  public double getSensor(Sensor sensorNum, int simStep)
+  public double getSource(Sensor sensor, int simStep)
   {
     int sizeX = (int)Configuration.SIZE_X.getValue();
     int sizeY = (int)Configuration.SIZE_Y.getValue();
@@ -698,7 +698,7 @@ class Creature {
 
     double sensorVal = 0.0;
 
-    switch (sensorNum) {
+    switch (sensor) {
     case AGE:
       // Converts age (units of simSteps compared to life expectancy)
       // linearly to normalized sensor range 0.0..1.0

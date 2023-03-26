@@ -53,9 +53,6 @@ class Environment {
     creatures.clear();
     generationsWithNoSurvivors = 0;
 
-    // Add an empty creature at position 0 TODO is this right?
-    //creatures.add(null);
-
     String[] generationData = loadStrings(fileToLoad);
     for (String population : generationData) {
       String[] populationArray = population.split("\\|");
@@ -80,9 +77,6 @@ class Environment {
     signals.zeroFill();
     creatures.clear();
     generationsWithNoSurvivors = 0;
-
-    // Add an empty creature at position 0 TODO is this right?
-    //creatures.add(null);
 
     // Add the rest of the creatures, initialized new
     for (int i = 0; i < population; i++) {
@@ -383,7 +377,7 @@ class Environment {
    * For informational purposes only, not the full creature datastructure
    */
   public List<Creature> getCreatures() {
-    return populationSize()> 0?creatures.subList(1, creatures.size()): new ArrayList<Creature>();
+    return populationSize()> 0?creatures.subList(0, creatures.size()): new ArrayList<Creature>();
   }
 
   public void queueForDeath(Creature deadCreature) {
@@ -477,15 +471,15 @@ class Environment {
       Creature creature = at(index);
       if (creature.isAlive()) {
         for (Gene gene : creature.getBrain().getConnections()) {
-          if (gene.getSensor() == NeuronType.SENSOR) {
-            assert gene.getSensorSource() >= 0 && gene.getSensorSource() < Sensor.values().length :
-            String.format("large or negative sensorSource:%d", gene.getSensorSource());
-            ++sensorCounts[gene.getSensorSource()];
+          if (gene.getSource() == NeuronType.SENSOR) {
+            assert gene.getSourceNumber() >= 0 && gene.getSourceNumber() < Sensor.values().length :
+            String.format("large or negative sourceNumber:%d", gene.getSourceNumber());
+            ++sensorCounts[gene.getSourceNumber()];
           }
           if (gene.getTarget() == NeuronType.ACTION) {
-            assert gene.getTargetSource() >= 0 && gene.getTargetSource() < CreatureAction.values().length :
-            String.format("large or negative targetSource:%d", gene.getTargetSource());
-            ++actionCounts[gene.getTargetSource()];
+            assert gene.getTargetNumber() >= 0 && gene.getTargetNumber() < CreatureAction.values().length :
+            String.format("large or negative targetNumber:%d", gene.getTargetNumber());
+            ++actionCounts[gene.getTargetNumber()];
           }
         }
       }

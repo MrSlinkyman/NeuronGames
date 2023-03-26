@@ -60,7 +60,7 @@ class NeuralNet {
     * We have three types of neurons:
     * 
     * input sensors - each gives a value in the range (0.0..1.0).
-    * Values are obtained from getSensor().
+    * Values are obtained from getSource().
     * 
     * internal neurons - each takes inputs from sensors or other internal neurons;
     * each has output value in the range (-1.0..1.0). The output value for each neuron
@@ -112,23 +112,23 @@ class NeuralNet {
       // Obtain the connection's input value from a sensor neuron or other neuron
       // The values are summed for now, later passed through a transfer function
       double inputVal;
-      if (conn.getSensor() == NeuronType.SENSOR) {
-        inputVal = creature.getSensor(Sensor.values()[conn.getSensorSource()], simStep);
+      if (conn.getSource() == NeuronType.SENSOR) {
+        inputVal = creature.getSource(Sensor.values()[conn.getSourceNumber()], simStep);
       } else {
-        assert conn.getSensorSource() < neurons.size() :
-        String.format("neurons:%d <= sensorSource:%d, connection:%s, creature:%s", neurons.size(), conn.getSensorSource(), conn, creature);
-        inputVal = neurons.get(conn.getSensorSource()).getOutput();
+        assert conn.getSourceNumber() < neurons.size() :
+        String.format("neurons:%d <= sourceNumber:%d, connection:%s, creature:%s", neurons.size(), conn.getSourceNumber(), conn, creature);
+        inputVal = neurons.get(conn.getSourceNumber()).getOutput();
       }
 
       // Weight the connection's value and add to neuron accumulator or action accumulator.
       // The action and neuron accumulators will therefore contain +- float values in
       // an arbitrary range.
       if (conn.getTarget() == NeuronType.ACTION) {
-        actionLevels[conn.getTargetSource()] += inputVal * conn.getWeight();
+        actionLevels[conn.getTargetNumber()] += inputVal * conn.getWeight();
       } else {
-        assert conn.getTargetSource() < neuronAccumulators.length :
-        String.format("neuronAccumulators:%d <= targetSource:%d, neurons:%d, connection:%s, creature:%s", neuronAccumulators.length, conn.getTargetSource(), neurons.size(), conn, creature);
-        neuronAccumulators[conn.getTargetSource()] += (double)inputVal * conn.getWeight();
+        assert conn.getTargetNumber() < neuronAccumulators.length :
+        String.format("neuronAccumulators:%d <= targetNumber:%d, neurons:%d, connection:%s, creature:%s", neuronAccumulators.length, conn.getTargetNumber(), neurons.size(), conn, creature);
+        neuronAccumulators[conn.getTargetNumber()] += (double)inputVal * conn.getWeight();
       }
     }
 
@@ -183,10 +183,10 @@ class NeuralNet {
         newConnections.add(conn);
         printFirst("in createConnections, adding conn target:NEURON:%s\n", conn);
         // fix the destination neuron number
-        conn.setTargetSource((short)nodeMap.get(conn.getTargetSource()).remappedNumber);
+        conn.setTargetNumber((short)nodeMap.get(conn.getTargetNumber()).remappedNumber);
         // if the source is a neuron, fix its number too
-        if (conn.sensor == NeuronType.NEURON) {
-          conn.setSensorSource((short)nodeMap.get(conn.getSensorSource()).remappedNumber);
+        if (conn.getSource() == NeuronType.NEURON) {
+          conn.setSourceNumber((short)nodeMap.get(conn.getSourceNumber()).remappedNumber);
         }
         printFirst("in createConnections, fixed conn:%s\n", conn);
       }
@@ -199,11 +199,11 @@ class NeuralNet {
         printFirst("in createConnections, added conn target:ACTION:%s\n", conn);
 
         // if the source is a neuron, fix its number
-        if (conn.sensor == NeuronType.NEURON) {
-          Node n = nodeMap.get(conn.getSensorSource());
+        if (conn.getSource() == NeuronType.NEURON) {
+          Node n = nodeMap.get(conn.getSourceNumber());
         assert n!= null:
-          String.format("null sensor:%d", conn.getSensorSource());
-          conn.setSensorSource((short)n.remappedNumber);
+          String.format("null sensor:%d", conn.getSourceNumber());
+          conn.setSourceNumber((short)n.remappedNumber);
         }
         printFirst("in createConnections, fixed conn:%s\n", conn);
       }
@@ -228,20 +228,20 @@ class NeuralNet {
       printFirst("in makeRenumberedConnectionList#orig gene:%s\n", connection);
 
       connectionList.add(connection);
-      int origSensorSource = connection.getSensorSource();
-      int origTargetSource = connection.getTargetSource();
-      connection.setSensorSource((short)(connection.getSensorSource() % ((NeuronType.NEURON == connection.getSensor()) ?
+      int origSensorSource = connection.getSourceNumber();
+      int origTargetSource = connection.getTargetNumber();
+      connection.setSourceNumber((short)(connection.getSourceNumber() % ((NeuronType.NEURON == connection.getSource()) ?
         (int)Configuration.MAX_NUMBER_NEURONS.getValue() :
         Sensor.values().length)));
 
-      connection.setTargetSource((short)(connection.getTargetSource() % ((NeuronType.NEURON == connection.getTarget())?
+      connection.setTargetNumber((short)(connection.getTargetNumber() % ((NeuronType.NEURON == connection.getTarget())?
         (int)Configuration.MAX_NUMBER_NEURONS.getValue() :
         CreatureAction.values().length)));
 
-      if (origSensorSource != connection.getSensorSource())
-        Parameters.debugOutput("Had to renumber sensor connection:%s, (%d > %d)\n", connection, origSensorSource, connection.getSensorSource());
-      if (origTargetSource != connection.getTargetSource())
-        Parameters.debugOutput("Had to renumber target connection:%s, (%d > %d)\n", connection, origTargetSource, connection.getTargetSource());
+      if (origSensorSource != connection.getSourceNumber())
+        Parameters.debugOutput("Had to renumber sensor connection:%s, (%d > %d)\n", connection, origSensorSource, connection.getSourceNumber());
+      if (origTargetSource != connection.getTargetNumber())
+        Parameters.debugOutput("Had to renumber target connection:%s, (%d > %d)\n", connection, origTargetSource, connection.getTargetNumber());
 
       printFirst("in makeRenumberedConnectionList#mods gene:%s\n", connection);
     }
@@ -257,37 +257,37 @@ class NeuralNet {
       Gene connection = new Gene(gene.getBlueprint());
       printFirst("  connection:%s\n", connection);
       if (NeuronType.NEURON == connection.getTarget()) {
-        Node node = nodeMap.get(connection.getTargetSource());
-        printFirst("    target:NEURON at%d node:%s\n", connection.getTargetSource(), node);
+        Node node = nodeMap.get(connection.getTargetNumber());
+        printFirst("    target:NEURON at%d node:%s\n", connection.getTargetNumber(), node);
         if (node == null) {
-          assert connection.getTargetSource()>=0 && connection.getTargetSource() < (int)Configuration.MAX_NUMBER_NEURONS.getValue():
-          String.format("  targetSource negative or too big:%d", connection.getTargetSource());
+          assert connection.getTargetNumber()>=0 && connection.getTargetNumber() < (int)Configuration.MAX_NUMBER_NEURONS.getValue():
+          String.format("  targetNumber negative or too big:%d", connection.getTargetNumber());
           node = new Node();
-          nodeMap.put(connection.getTargetSource(), node);
-          printFirst("      NEW target:NEURON at:%d node:%s\n", connection.getTargetSource(), node);
+          nodeMap.put(connection.getTargetNumber(), node);
+          printFirst("      NEW target:NEURON at:%d node:%s\n", connection.getTargetNumber(), node);
         }
 
-        if (NeuronType.NEURON == connection.getSensor() && connection.getSensorSource() == connection.getTargetSource()) {
+        if (NeuronType.NEURON == connection.getSource() && connection.getSourceNumber() == connection.getTargetNumber()) {
           ++node.numSelfInputs;
         } else {
           ++node.numInputsFromSensorsOrOtherNeurons;
         }
-        printFirst("    FINAL target:NEURON at:%d node:%s\n", connection.getTargetSource(), node);
+        printFirst("    FINAL target:NEURON at:%d node:%s\n", connection.getTargetNumber(), node);
       }
 
-      if (NeuronType.NEURON == connection.getSensor()) {
-        Node node = nodeMap.get(connection.getSensorSource());
-        printFirst("    sensor:NEURON at:%d node:%s\n", connection.getSensorSource(), node);
+      if (NeuronType.NEURON == connection.getSource()) {
+        Node node = nodeMap.get(connection.getSourceNumber());
+        printFirst("    sensor:NEURON at:%d node:%s\n", connection.getSourceNumber(), node);
         if (node == null) {
-          assert connection.getSensorSource()>= 0 && connection.getSensorSource() < (int)Configuration.MAX_NUMBER_NEURONS.getValue():
-          String.format("negative or large sensorSource:%d", connection.getSensorSource());
+          assert connection.getSourceNumber()>= 0 && connection.getSourceNumber() < (int)Configuration.MAX_NUMBER_NEURONS.getValue():
+          String.format("negative or large sourceNumber:%d", connection.getSourceNumber());
           node = new Node();
-          nodeMap.put(connection.getSensorSource(), node);
-          printFirst("      NEW sensor:NEURON at:%d node:%s\n", connection.getSensorSource(), node);
+          nodeMap.put(connection.getSourceNumber(), node);
+          printFirst("      NEW sensor:NEURON at:%d node:%s\n", connection.getSourceNumber(), node);
         }
 
         ++node.numOutputs;
-        printFirst("    FINAL sensor:NEURON at:%d node:%s\n", connection.getSensorSource(), node);
+        printFirst("    FINAL sensor:NEURON at:%d node:%s\n", connection.getSourceNumber(), node);
       }
     }
     return nodeMap;
@@ -299,12 +299,12 @@ class NeuralNet {
     while (iter.hasNext()) {
       Gene gene = iter.next();
       printFirst("this gene:%s\n", gene);
-      if (gene.getTarget() == NeuronType.NEURON && gene.getTargetSource() == neuronNumber) {
+      if (gene.getTarget() == NeuronType.NEURON && gene.getTargetNumber() == neuronNumber) {
         // Remove the connection. If the connection source is from another
         // neuron, also decrement the other neuron's numOutputs:
-        if (gene.getSensor() == NeuronType.NEURON) {
-          (nodeMap.get(gene.getSensorSource())).numOutputs--;
-          printFirst("devrementing referenced sensor:NEURON:%d, numOutputs:%d\n", gene.getSensorSource(), (nodeMap.get(gene.getSensorSource())).numOutputs);
+        if (gene.getSource() == NeuronType.NEURON) {
+          (nodeMap.get(gene.getSourceNumber())).numOutputs--;
+          printFirst("devrementing referenced sensor:NEURON:%d, numOutputs:%d\n", gene.getSourceNumber(), (nodeMap.get(gene.getSourceNumber())).numOutputs);
         }
         printFirst("removing referenced target:NEURON:%d\n", neuronNumber);
         iter.remove();
