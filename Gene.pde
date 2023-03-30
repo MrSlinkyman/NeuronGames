@@ -104,20 +104,20 @@ class Gene {
     str +="]=>";
     str+=String.format("[s(%s:%s), t(%s:%s), w:%f]",
       source,
-      (NeuronType.SENSOR == source)?Sensor.values()[sourceNumber]:String.format("%d", sourceNumber),
+      (NeuronType.SENSOR == source)?(sourceNumber < Sensor.values().length)?Sensor.values()[sourceNumber]:String.format("UNKNOWN:%d", sourceNumber):String.format("%d", sourceNumber),
       target,
-      (NeuronType.ACTION == target)?CreatureAction.values()[targetNumber]:String.format("%d", targetNumber),
+      (NeuronType.ACTION == target)?(targetNumber < CreatureAction.values().length)?CreatureAction.values()[targetNumber]:String.format("UNKNOWN:%d", targetNumber):String.format("%d", targetNumber),
       getWeight());
     return str;
   }
 
   public String toIGraph() {
     return String.format("%s %s %d",
-      (source == NeuronType.SENSOR)?         Sensor.values()[sourceNumber].getShortName(): String.format("N%d", sourceNumber),
-      (target == NeuronType.ACTION)? CreatureAction.values()[targetNumber].getShortName(): String.format("N%d", targetNumber),
+      (source == NeuronType.SENSOR)? (sourceNumber < Sensor.values().length)?Sensor.values()[sourceNumber].getShortName():String.format("N/A:%d", sourceNumber): String.format("N%d", sourceNumber),
+      (target == NeuronType.ACTION)? (targetNumber < CreatureAction.values().length)?CreatureAction.values()[targetNumber].getShortName():String.format("N/A:%d", targetNumber): String.format("N%d", targetNumber),
       weight);
   }
-
+  
   public double getWeight() {
     return weight/weightScaler;
   }
@@ -162,5 +162,18 @@ class Gene {
 
   public void setWeight(short weight) {
     this.weight = weight;
+  }
+  
+  public void allTests(){
+    testRandom();
+  }
+  
+  private void testRandom(){
+    Gene randomGene = new Gene();
+    for(int i = 0; i < 100; i++){
+      System.out.printf("Random gene: %s\n", randomGene);
+      System.out.printf("Random gene: %s\n", randomGene.toIGraph());
+      randomGene = new Gene();
+    }
   }
 }
