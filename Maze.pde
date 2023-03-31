@@ -14,8 +14,6 @@ class Maze {
   int cellWidth, cellHeight;
   Stack<MazeCell> mazeStack;
   MazeCell start, end;
-    //double xFactor = (barrierType.hasArgs()) ? barrierType.getArg(0) : 0;
-    //double yFactor = (barrierType.hasArgs()) ? barrierType.getArg(1) : 0;
 
   Maze(int c, int r) {
     this.cols = c;
@@ -31,13 +29,15 @@ class Maze {
     // select random cells for start and end positions
     //start = grid[(int) random(cols)][0];
     //end = grid[(int) random(cols)][rows-1];
+    
+    // Start upper left, end lower right
     start = grid[0][0];
     end = grid[cols-1][rows-1];
 
     // remove walls to create openings
     start.setWall(Wall.NORTH, false);
     end.setWall(Wall.SOUTH, false);
-    System.out.println("Generating Maz...");
+    System.out.println("Generating Maze...");
     generateMaze();
     System.out.println("...Generated");
   }
@@ -62,38 +62,6 @@ class Maze {
   public MazeCell getCell(int col, int row) {
     return grid[col][row];
   }
-  //public boolean draw() {
-  //  boolean finished = false;
-  //  background(255);
-  //  for (int i = 0; i < cols; i++) {
-  //    for (int j = 0; j < rows; j++) {
-  //      grid[i][j].draw(x_offset, y_offset);
-  //    }
-  //  }
-  // while(!finished)
-  //  current.visited = true;
-  //  Cell next = current.getRandomUnvisitedNeighbor(this);
-  //  if (next != null) {
-  //    mazeStack.push(current);
-  //    current.removeWall(next);
-  //    current = next;
-  //    finished = false;
-  //  } else if (mazeStack.size() > 0) {
-  //    current = mazeStack.pop();
-  //    finished = false;
-  //  } else {
-  //    // draw start and end markers
-  //    // draw start and end markers
-  //    noStroke();
-  //    fill(0, 255, 0, 125);
-  //    rect(start.x+x_offset, start.y + y_offset, cellWidth, cellHeight);
-  //    fill(255, 0, 0, 125);
-  //    rect(end.x + x_offset, end.y + y_offset, cellWidth, cellHeight);
-  //    finished = true;
-  //  }
-
-  //  return finished;
-  //}
 
   private void generateMaze() {
     boolean finished = false;

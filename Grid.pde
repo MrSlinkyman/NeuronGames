@@ -7,11 +7,17 @@ class Grid {
   Environment environment;
   List<Coordinate> barrierLocations;
   List<Coordinate> barrierCenters;
+  PGraphics gridDisplay;
+  PGraphics challengeDisplay;
+  boolean displayInitialized;
 
   Grid(Environment e) {
     environment = e;
     barrierLocations = new ArrayList<Coordinate>();
     barrierCenters = new ArrayList<Coordinate>();
+    gridDisplay = createGraphics(width, height);
+    challengeDisplay = createGraphics(width, height);
+    displayInitialized = false;
   }
 
   Grid initialize(int w, int h) {
@@ -88,329 +94,345 @@ class Grid {
   }
 
   public void display() {
-    if (toggleDisplay) {
-      Challenge challenge = (Challenge)Parameters.CHALLENGE.getValue();
-      int sizeX = (int)Configuration.SIZE_X.getValue();
-      int sizeY = (int)Configuration.SIZE_Y.getValue();
-      int size = (int)Configuration.AGENT_SIZE.getValue();
-      for (int x = 0; x < data.length; x++) {
-        for (int y = 0; y < data[x].length; y++) {
-          Coordinate location = new Coordinate(x, y);
-          // Calculate challenge space
-          boolean showChallengeCell = false;
-          color challengeCellColor = color(125);
-          if (toggleChallenge) {
-            switch(challenge) {
-            case CORNER_WEIGHTED:
-              {
-                int[] cornersX = {0, sizeX-1};
-                int[] cornersY = {0, sizeY-1};
-                double radius = (double)sizeX*Challenge.CORNER_WEIGHTED.getParameter(0);
+    if (!toggleDisplay) return;
+    if (displayInitialized) {
+      if (toggleChallenge) {
+        image(challengeDisplay, 0, 0);
+      }
+      image(gridDisplay, 0, 0);
+      return;
+    }
 
-                for (int xx : cornersX) {
-                  for (int yy : cornersY) {
-                    double distance = new Coordinate(xx, yy).subtract(location).length();
-                    if (!showChallengeCell && distance <= radius) {
-                      challengeCellColor = color(125, (int)(255*(1.0-distance/radius)));
-                      showChallengeCell = true;
-                    }
+    gridDisplay.beginDraw();
+    challengeDisplay.beginDraw();
+    Challenge challenge = (Challenge)Parameters.CHALLENGE.getValue();
+    int sizeX = (int)Configuration.SIZE_X.getValue();
+    int sizeY = (int)Configuration.SIZE_Y.getValue();
+    int size = (int)Configuration.AGENT_SIZE.getValue();
+    for (int x = 0; x < data.length; x++) {
+      for (int y = 0; y < data[x].length; y++) {
+        Coordinate location = new Coordinate(x, y);
+        // Calculate challenge space
+        boolean showChallengeCell = false;
+        color challengeCellColor = color(125);
+        
+        if (toggleChallenge) {
+          switch(challenge) {
+          case CORNER_WEIGHTED:
+            {
+              int[] cornersX = {0, sizeX-1};
+              int[] cornersY = {0, sizeY-1};
+              double radius = (double)sizeX*Challenge.CORNER_WEIGHTED.getParameter(0);
+
+              for (int xx : cornersX) {
+                for (int yy : cornersY) {
+                  double distance = new Coordinate(xx, yy).subtract(location).length();
+                  if (!showChallengeCell && distance <= radius) {
+                    challengeCellColor = color(125, (int)(255*(1.0-distance/radius)));
+                    showChallengeCell = true;
                   }
                 }
-                break;
               }
-            case CIRCLE_WEIGHTED:
-              {
-                Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CIRCLE_WEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CIRCLE_WEIGHTED.getParameter(0)));
-                double radius = sizeX*Challenge.CIRCLE_WEIGHTED.getParameter(1);
-
-                Coordinate offset = safeCenter.subtract(location);
-                double distance = offset.length();
-                if (distance <= radius) {
-                  challengeCellColor = color(125, (int)(255*(1.0-distance/radius)));
-                  showChallengeCell = true;
-                }
-                break;
-              }
-            case CIRCLE_UNWEIGHTED:
-              {
-                Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CIRCLE_UNWEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CIRCLE_UNWEIGHTED.getParameter(0)));
-                double radius = sizeX*Challenge.CIRCLE_UNWEIGHTED.getParameter(1);
-
-                Coordinate offset = safeCenter.subtract(location);
-                double distance = offset.length();
-                showChallengeCell = (distance <= radius);
-                break;
-              }
-            case RIGHT_HALF:
-              // Survivors are all those on the right side of the arena
-              showChallengeCell = (location.getX() > sizeX*Challenge.RIGHT_HALF.getParameter(0));
-              break;
-            case RIGHT_QUARTER:
-              // Survivors are all those on the right quarter of the arena
-              showChallengeCell = (location.getX() > (sizeX*Challenge.RIGHT_QUARTER.getParameter(0)));
-              break;
-            case LEFT:
-              // Survivors are all those on the left eighth of the arena (or however configured)
-              showChallengeCell = (location.getX() < sizeX*Challenge.LEFT.getParameter(0));
-              break;
-            case STRING:
-              // Survivors are those not touching the border and with exactly the number
-              // of neighbors defined by neighbors and radius, where neighbors includes self
-              {
-                showChallengeCell = (!isBorder(location));
-                break;
-              }
-            case CENTER_WEIGHTED:
-              // Survivors are those within the specified radius of the center. The score
-              // is linearly weighted by distance from the center.
-              {
-                Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CENTER_WEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CENTER_WEIGHTED.getParameter(0)));
-                double radius = sizeX*Challenge.CENTER_WEIGHTED.getParameter(1);
-
-                Coordinate offset = safeCenter.subtract(location);
-                double distance = offset.length();
-                if (distance<=radius) {
-                  challengeCellColor = color(125, (int)(255*(1.0-distance/radius)));
-                  showChallengeCell = true;
-                }
-                break;
-              }
-            case CENTER_UNWEIGHTED:
-              // Survivors are those within the specified radius of the center
-              {
-                Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CENTER_UNWEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CENTER_UNWEIGHTED.getParameter(0)));
-                double radius = sizeX*Challenge.CENTER_UNWEIGHTED.getParameter(1);
-
-                Coordinate offset = safeCenter.subtract(location);
-                double distance = offset.length();
-                showChallengeCell = (distance<=radius) ;
-                break;
-              }
-            case CORNER:
-              // Survivors are those within the specified radius of any corner.
-              // Assumes square arena.
-              {
-              assert sizeX == sizeY :
-                String.format("Grid is not square (%d, %d)", sizeX, sizeY );
-                int[] cornersX = {0, sizeX-1};
-                int[] cornersY = {0, sizeY-1};
-                double radius = (double)sizeX*Challenge.CORNER.getParameter(0);
-
-                for (int xx : cornersX) {
-                  for (int yy : cornersY) {
-                    double distance = new Coordinate(xx, yy).subtract(location).length();
-                    if (!showChallengeCell && distance <= radius) {
-                      showChallengeCell = true;
-                    }
-                  }
-                }
-                break;
-              }
-            case MIGRATE_DISTANCE:
-              // Everybody survives and are candidate parents, but scored by how far
-              // they migrated from their birth location.
-              break;
-            case CENTER_SPARSE:
-              // Survivors are those within the specified outer radius of the center and with
-              // the specified number of neighbors in the specified inner radius.
-              // For the grid visualization we will just show the center circle, unweighted
-              // The score is not weighted by distance from the center.
-              {
-                Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CENTER_SPARSE.getParameter(0)), (int)(sizeY*Challenge.CENTER_SPARSE.getParameter(0)));
-                double outerRadius = sizeX*Challenge.CENTER_SPARSE.getParameter(1);
-
-                Coordinate offset = safeCenter.subtract(location);
-                double distance = offset.length();
-                showChallengeCell = (distance <= outerRadius);
-                break;
-              }
-            case RADIOACTIVE_WALLS:
-              {
-                // This challenge is handled in endOfSimStep(), where individuals may die
-                // at the end of any sim step. There is nothing else to do here at the
-                // end of a generation. All remaining alive become parents.
-                int radioactiveX = (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue() * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Configuration.SIZE_X.getValue() - 1;
-
-                int distanceFromRadioactiveWall = Math.abs(location.getX() - radioactiveX);
-                if (distanceFromRadioactiveWall < (int)Configuration.SIZE_X.getValue() *Challenge.RADIOACTIVE_WALLS.getParameter(1)) {
-                  double dropoff = 1.0 / distanceFromRadioactiveWall;
-                  challengeCellColor = color(200, 10, 10, (int)(255.0*dropoff));
-                  showChallengeCell = true;
-                }
-
-                break;
-              }
-            case TOUCH_ANY_WALL:
-              // This challenge is partially handled in endOfSimStep(), where individuals
-              // that are touching a wall are flagged in their Creature record. They are
-              // allowed to continue living. Here at the end of the generation, any that
-              // never touch a wall will die. All that touched a wall at any time during
-              // their life will become parents.
-            case AGAINST_ANY_WALL:
-              // Survivors are those touching any wall at the end of the generation
-
-              showChallengeCell = (isBorder(location));
-              break;
-            case EAST_WEST:
-              // Survivors are all those on the left or right eighths of the arena (or whatever the config says)
-              showChallengeCell = ( location.getX() < (int)(sizeX*Challenge.EAST_WEST.getParameter(0)) || location.getX() >= (sizeX - (int)(sizeX*Challenge.EAST_WEST.getParameter(0))));
-              break;
-            case NEAR_BARRIER:
-              // Survivors are those within radius of any barrier center. Weighted by distance.
-              // TODO check the rest of these
-              {
-                double radius = sizeX * Challenge.NEAR_BARRIER.getParameter(0);
-                double minDistance = 1e8;
-
-                for (Coordinate center : barrierCenters) {
-                  double distance = location.subtract(center).length();
-                  if (distance < minDistance) minDistance = distance;
-                }
-
-                if (minDistance <= radius) {
-                  challengeCellColor = color(125, (int)(255*(1.0-minDistance/radius)));
-                  showChallengeCell = true;
-                }
-                break;
-              }
-            case PAIRS:
-              // Survivors are those not touching a border and with exactly one neighbor which has no other neighbor
-              {
-                showChallengeCell = (!isBorder(location));
-                break;
-              }
-            case LOCATION_SEQUENCE:
-              // Survivors are those that contacted one or more specified locations in a sequence,
-              // ranked by the number of locations contacted. There will be a bit set in their
-              // challengeBits member for each location contacted.
-              {
-                break;
-              }
-            case ALTRUISM:
-              // Survivors are those inside the circular area defined by
-              // safeCenter and radius
-              {
-                Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.ALTRUISM.getParameter(0)), (int)(sizeY*Challenge.ALTRUISM.getParameter(0)));
-                double radius = sizeX*Challenge.ALTRUISM.getParameter(1);
-
-                Coordinate offset = safeCenter.subtract(location);
-                double distance = offset.length();
-                if (distance<=radius) {
-                  challengeCellColor = color(125, (int)(255*(1.0-distance/radius)));
-                  showChallengeCell = true;
-                }
-                break;
-              }
-            case ALTRUISM_SACRIFICE:
-              // Survivors are all those within the specified radius of the NE corner
-              {
-                double radius = sizeX*Challenge.ALTRUISM_SACRIFICE.getParameter(0);
-
-                double distance = new Coordinate((int)(sizeX - radius), (int)(sizeY - radius)).subtract(location).length();
-                if (distance <= radius) {
-                  challengeCellColor = color(125, (int)(255*(1.0-distance/radius)));
-                  showChallengeCell = true;
-                }
-                break;
-              }
-            case MAZE_FEAR:
-              {
-                double radius = Challenge.MAZE_FEAR.getParameter(2);
-                int cols = (int)BarrierType.MAZE.getArg(0);
-                int rows = (int)BarrierType.MAZE.getArg(1);
-                MazeCell endCell = MazeInstance.getInstance().getEnd();
-
-                int cellWidth = sizeX/cols;
-                int cellHeight = sizeY/rows;
-                int yMin = (rows - 1) * cellHeight;
-                int yMax = rows * cellHeight;
-                int xMin = endCell.getCol() * cellWidth;
-                int xMax = xMin + cellWidth;
-
-                if (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax) {
-                  // This is an end cell
-                  showChallengeCell = true;
-                } else if (location.getX() > cellWidth && location.getY() > cellHeight) {
-                  // This is the portion of the map not in the start cell
-
-                  Coordinate endCoord = new Coordinate(sizeX-1, sizeY-1);
-                  double locationDist = location.subtract(endCoord).length();
-                  double maxDistance = new Coordinate(0, 0).subtract(endCoord).length();
-                  double locDistanceDiff = maxDistance - locationDist;
-                  
-                  // Check if this location is near a border
-                  double []minDistance = {radius+1.0};
-                  Consumer<Coordinate> f = (tloc) -> {
-                    if (isBarrierAt(tloc)) {
-                      double distance = location.subtract(tloc).length();
-                      minDistance[0] = (distance < minDistance[0])? distance : minDistance[0];
-                    }
-                  };
-                  location.visitNeighborhood(radius, f);
-                  if (minDistance[0] <= radius) {
-                    // they are within radius of a wall, this is bad.  No dropoff, just bad
-                    challengeCellColor = color(200, 10, 10, 255);
-                  } else {
-                    // this location is not near a border, show how close to the end it might be
-                    challengeCellColor = color(125, (int)(255.0 * (locDistanceDiff/maxDistance)));
-                  }
-                  showChallengeCell = true;
-                }
-
-                break;
-              }
-            case MAZE:
-              {
-                // TODO when a new maze is loaded using the loadBarriers method, make sure to also populate the maze
-                int cols = (int)BarrierType.MAZE.getArg(0);
-                int rows = (int)BarrierType.MAZE.getArg(1);
-                MazeCell endCell = MazeInstance.getInstance().getEnd();
-
-                int cellWidth = sizeX/cols;
-                int cellHeight = sizeY/rows;
-                int yMin = (rows - 1) * cellHeight;
-                int yMax = rows * cellHeight;
-                int xMin = endCell.getCol() * cellWidth;
-                int xMax = xMin + cellWidth;
-                // Show an end cell
-
-                //showChallengeCell = (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax);
-
-                if (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax) {
-                  // Are they in the end?
-                  showChallengeCell = true;
-                } else if (location.getX() > cellWidth && location.getY() > cellHeight) {
-                  // Have they moved away from the start and are close to the end?
-                  Coordinate endCoord = new Coordinate(sizeX-1, sizeY-1);
-                  double locationDist = location.subtract(endCoord).length();
-                  double maxDistance = new Coordinate(0, 0).subtract(endCoord).length();
-                  double locDistanceDiff = maxDistance - locationDist;
-                  challengeCellColor = color(125, (int)(255.0 * (locDistanceDiff/maxDistance))
-
-                    //(Math.max(sizeX, sizeY)-location.subtract(new Coordinate(sizeX-1, sizeY-1)).length()/Math.max(sizeX, sizeY))
-                    );
-                  showChallengeCell = true;
-                }
-                break;
-              }
-            default:
               break;
             }
+          case CIRCLE_WEIGHTED:
+            {
+              Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CIRCLE_WEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CIRCLE_WEIGHTED.getParameter(0)));
+              double radius = sizeX*Challenge.CIRCLE_WEIGHTED.getParameter(1);
 
-            if (showChallengeCell) {
-              noStroke();
-              fill(challengeCellColor);
-              rect(location.getX()*size, location.getY()*size, size, size);
+              Coordinate offset = safeCenter.subtract(location);
+              double distance = offset.length();
+              if (distance <= radius) {
+                challengeCellColor = color(125, (int)(255*(1.0-distance/radius)));
+                showChallengeCell = true;
+              }
+              break;
             }
+          case CIRCLE_UNWEIGHTED:
+            {
+              Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CIRCLE_UNWEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CIRCLE_UNWEIGHTED.getParameter(0)));
+              double radius = sizeX*Challenge.CIRCLE_UNWEIGHTED.getParameter(1);
+
+              Coordinate offset = safeCenter.subtract(location);
+              double distance = offset.length();
+              showChallengeCell = (distance <= radius);
+              break;
+            }
+          case RIGHT_HALF:
+            // Survivors are all those on the right side of the arena
+            showChallengeCell = (location.getX() > sizeX*Challenge.RIGHT_HALF.getParameter(0));
+            break;
+          case RIGHT_QUARTER:
+            // Survivors are all those on the right quarter of the arena
+            showChallengeCell = (location.getX() > (sizeX*Challenge.RIGHT_QUARTER.getParameter(0)));
+            break;
+          case LEFT:
+            // Survivors are all those on the left eighth of the arena (or however configured)
+            showChallengeCell = (location.getX() < sizeX*Challenge.LEFT.getParameter(0));
+            break;
+          case STRING:
+            // Survivors are those not touching the border and with exactly the number
+            // of neighbors defined by neighbors and radius, where neighbors includes self
+            {
+              showChallengeCell = (!isBorder(location));
+              break;
+            }
+          case CENTER_WEIGHTED:
+            // Survivors are those within the specified radius of the center. The score
+            // is linearly weighted by distance from the center.
+            {
+              Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CENTER_WEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CENTER_WEIGHTED.getParameter(0)));
+              double radius = sizeX*Challenge.CENTER_WEIGHTED.getParameter(1);
+
+              Coordinate offset = safeCenter.subtract(location);
+              double distance = offset.length();
+              if (distance<=radius) {
+                challengeCellColor = color(125, (int)(255*(1.0-distance/radius)));
+                showChallengeCell = true;
+              }
+              break;
+            }
+          case CENTER_UNWEIGHTED:
+            // Survivors are those within the specified radius of the center
+            {
+              Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CENTER_UNWEIGHTED.getParameter(0)), (int)(sizeY*Challenge.CENTER_UNWEIGHTED.getParameter(0)));
+              double radius = sizeX*Challenge.CENTER_UNWEIGHTED.getParameter(1);
+
+              Coordinate offset = safeCenter.subtract(location);
+              double distance = offset.length();
+              showChallengeCell = (distance<=radius) ;
+              break;
+            }
+          case CORNER:
+            // Survivors are those within the specified radius of any corner.
+            // Assumes square arena.
+            {
+            assert sizeX == sizeY :
+              String.format("Grid is not square (%d, %d)", sizeX, sizeY );
+              int[] cornersX = {0, sizeX-1};
+              int[] cornersY = {0, sizeY-1};
+              double radius = (double)sizeX*Challenge.CORNER.getParameter(0);
+
+              for (int xx : cornersX) {
+                for (int yy : cornersY) {
+                  double distance = new Coordinate(xx, yy).subtract(location).length();
+                  if (!showChallengeCell && distance <= radius) {
+                    showChallengeCell = true;
+                  }
+                }
+              }
+              break;
+            }
+          case MIGRATE_DISTANCE:
+            // Everybody survives and are candidate parents, but scored by how far
+            // they migrated from their birth location.
+            break;
+          case CENTER_SPARSE:
+            // Survivors are those within the specified outer radius of the center and with
+            // the specified number of neighbors in the specified inner radius.
+            // For the grid visualization we will just show the center circle, unweighted
+            // The score is not weighted by distance from the center.
+            {
+              Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.CENTER_SPARSE.getParameter(0)), (int)(sizeY*Challenge.CENTER_SPARSE.getParameter(0)));
+              double outerRadius = sizeX*Challenge.CENTER_SPARSE.getParameter(1);
+
+              Coordinate offset = safeCenter.subtract(location);
+              double distance = offset.length();
+              showChallengeCell = (distance <= outerRadius);
+              break;
+            }
+          case RADIOACTIVE_WALLS:
+            {
+              // This challenge is handled in endOfSimStep(), where individuals may die
+              // at the end of any sim step. There is nothing else to do here at the
+              // end of a generation. All remaining alive become parents.
+              int radioactiveX = (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue() * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Configuration.SIZE_X.getValue() - 1;
+
+              int distanceFromRadioactiveWall = Math.abs(location.getX() - radioactiveX);
+              if (distanceFromRadioactiveWall < (int)Configuration.SIZE_X.getValue() *Challenge.RADIOACTIVE_WALLS.getParameter(1)) {
+                double dropoff = 1.0 / distanceFromRadioactiveWall;
+                challengeCellColor = color(200, 10, 10, (int)(255.0*dropoff));
+                showChallengeCell = true;
+              }
+
+              break;
+            }
+          case TOUCH_ANY_WALL:
+            // This challenge is partially handled in endOfSimStep(), where individuals
+            // that are touching a wall are flagged in their Creature record. They are
+            // allowed to continue living. Here at the end of the generation, any that
+            // never touch a wall will die. All that touched a wall at any time during
+            // their life will become parents.
+          case AGAINST_ANY_WALL:
+            // Survivors are those touching any wall at the end of the generation
+
+            showChallengeCell = (isBorder(location));
+            break;
+          case EAST_WEST:
+            // Survivors are all those on the left or right eighths of the arena (or whatever the config says)
+            showChallengeCell = ( location.getX() < (int)(sizeX*Challenge.EAST_WEST.getParameter(0)) || location.getX() >= (sizeX - (int)(sizeX*Challenge.EAST_WEST.getParameter(0))));
+            break;
+          case NEAR_BARRIER:
+            // Survivors are those within radius of any barrier center. Weighted by distance.
+            // TODO check the rest of these
+            {
+              double radius = sizeX * Challenge.NEAR_BARRIER.getParameter(0);
+              double minDistance = 1e8;
+
+              for (Coordinate center : barrierCenters) {
+                double distance = location.subtract(center).length();
+                if (distance < minDistance) minDistance = distance;
+              }
+
+              if (minDistance <= radius) {
+                challengeCellColor = color(125, (int)(255*(1.0-minDistance/radius)));
+                showChallengeCell = true;
+              }
+              break;
+            }
+          case PAIRS:
+            // Survivors are those not touching a border and with exactly one neighbor which has no other neighbor
+            {
+              showChallengeCell = (!isBorder(location));
+              break;
+            }
+          case LOCATION_SEQUENCE:
+            // Survivors are those that contacted one or more specified locations in a sequence,
+            // ranked by the number of locations contacted. There will be a bit set in their
+            // challengeBits member for each location contacted.
+            {
+              break;
+            }
+          case ALTRUISM:
+            // Survivors are those inside the circular area defined by
+            // safeCenter and radius
+            {
+              Coordinate safeCenter = new Coordinate((int)(sizeX*Challenge.ALTRUISM.getParameter(0)), (int)(sizeY*Challenge.ALTRUISM.getParameter(0)));
+              double radius = sizeX*Challenge.ALTRUISM.getParameter(1);
+
+              Coordinate offset = safeCenter.subtract(location);
+              double distance = offset.length();
+              if (distance<=radius) {
+                challengeCellColor = color(125, (int)(255*(1.0-distance/radius)));
+                showChallengeCell = true;
+              }
+              break;
+            }
+          case ALTRUISM_SACRIFICE:
+            // Survivors are all those within the specified radius of the NE corner
+            {
+              double radius = sizeX*Challenge.ALTRUISM_SACRIFICE.getParameter(0);
+
+              double distance = new Coordinate((int)(sizeX - radius), (int)(sizeY - radius)).subtract(location).length();
+              if (distance <= radius) {
+                challengeCellColor = color(125, (int)(255*(1.0-distance/radius)));
+                showChallengeCell = true;
+              }
+              break;
+            }
+          case MAZE_FEAR:
+            {
+              double radius = Challenge.MAZE_FEAR.getParameter(2);
+              int cols = (int)BarrierType.MAZE.getArg(0);
+              int rows = (int)BarrierType.MAZE.getArg(1);
+              MazeCell endCell = MazeInstance.getInstance().getEnd();
+
+              int cellWidth = sizeX/cols;
+              int cellHeight = sizeY/rows;
+              int yMin = (rows - 1) * cellHeight;
+              int yMax = rows * cellHeight;
+              int xMin = endCell.getCol() * cellWidth;
+              int xMax = xMin + cellWidth;
+
+              if (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax) {
+                // This is an end cell
+                showChallengeCell = true;
+              } else if (location.getX() > cellWidth && location.getY() > cellHeight) {
+                // This is the portion of the map not in the start cell
+
+                Coordinate endCoord = new Coordinate(sizeX-1, sizeY-1);
+                double locationDist = location.subtract(endCoord).length();
+                double maxDistance = new Coordinate(0, 0).subtract(endCoord).length();
+                double locDistanceDiff = maxDistance - locationDist;
+
+                // Check if this location is near a border
+                double []minDistance = {radius+1.0};
+                Consumer<Coordinate> f = (tloc) -> {
+                  if (isBarrierAt(tloc)) {
+                    double distance = location.subtract(tloc).length();
+                    minDistance[0] = (distance < minDistance[0])? distance : minDistance[0];
+                  }
+                };
+                location.visitNeighborhood(radius, f);
+                if (minDistance[0] <= radius) {
+                  // they are within radius of a wall, this is bad.  No dropoff, just bad
+                  challengeCellColor = color(200, 10, 10, 255);
+                } else {
+                  // this location is not near a border, show how close to the end it might be
+                  challengeCellColor = color(125, (int)(255.0 * (locDistanceDiff/maxDistance)));
+                }
+                showChallengeCell = true;
+              }
+
+              break;
+            }
+          case MAZE:
+            {
+              // TODO when a new maze is loaded using the loadBarriers method, make sure to also populate the maze
+              int cols = (int)BarrierType.MAZE.getArg(0);
+              int rows = (int)BarrierType.MAZE.getArg(1);
+              MazeCell endCell = MazeInstance.getInstance().getEnd();
+
+              int cellWidth = sizeX/cols;
+              int cellHeight = sizeY/rows;
+              int yMin = (rows - 1) * cellHeight;
+              int yMax = rows * cellHeight;
+              int xMin = endCell.getCol() * cellWidth;
+              int xMax = xMin + cellWidth;
+              // Show an end cell
+
+              //showChallengeCell = (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax);
+
+              if (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax) {
+                // Are they in the end?
+                showChallengeCell = true;
+              } else if (location.getX() > cellWidth && location.getY() > cellHeight) {
+                // Have they moved away from the start and are close to the end?
+                Coordinate endCoord = new Coordinate(sizeX-1, sizeY-1);
+                double locationDist = location.subtract(endCoord).length();
+                double maxDistance = new Coordinate(0, 0).subtract(endCoord).length();
+                double locDistanceDiff = maxDistance - locationDist;
+                challengeCellColor = color(125, (int)(255.0 * (locDistanceDiff/maxDistance))
+
+                  //(Math.max(sizeX, sizeY)-location.subtract(new Coordinate(sizeX-1, sizeY-1)).length()/Math.max(sizeX, sizeY))
+                  );
+                showChallengeCell = true;
+              }
+              break;
+            }
+          default:
+            break;
           }
-          if (isBarrierAt(location)) {
-            noStroke();
-            fill(255);
-            rect(location.getX()*size, location.getY()*size, size, size);
+
+          if (showChallengeCell) {
+            challengeDisplay.noStroke();
+            challengeDisplay.fill(challengeCellColor);
+            challengeDisplay.rect(location.getX()*size, location.getY()*size, size, size);
           }
+        }
+        if (isBarrierAt(location)) {
+          gridDisplay.noStroke();
+          gridDisplay.fill(255);
+          gridDisplay.rect(location.getX()*size, location.getY()*size, size, size);
         }
       }
     }
+    gridDisplay.endDraw();
+    challengeDisplay.endDraw();
+    image(challengeDisplay, 0, 0);
+    image(gridDisplay, 0, 0);
+
+    displayInitialized = true;
   }
 
   public void createBarrier() {

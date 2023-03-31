@@ -468,8 +468,7 @@ class Environment {
     int[] sensorCounts = new int[Sensor.values().length];
     int[] actionCounts = new int[CreatureAction.values().length];
 
-    for (int index = 0; index < populationSize(); ++index) {
-      Creature creature = at(index);
+    for (Creature creature : getCreatures()) {
       if (creature.isAlive()) {
         for (Gene gene : creature.getBrain().getConnections()) {
           if (gene.getSource() == NeuronType.SENSOR) {

@@ -328,7 +328,6 @@ class Creature {
   private void display () {
     if (toggleDisplay) {
       int myColor[] = makeGeneticColor();
-      //int compositeColor = makeGeneticColorHex();
       int compositeColor = color(myColor[0], myColor[1], myColor[2]);
       noStroke();
       fill(compositeColor);

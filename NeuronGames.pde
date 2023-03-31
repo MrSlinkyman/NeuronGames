@@ -53,6 +53,8 @@ void setup() {
   //nn.allTests();
 
   //Coordinate c = new Coordinate().testAll();
+  //Gene g = new Gene();
+  //g.allTests();
 
   /* TODO:
    *  Modify to record a full history and then animate when finished (might speed up and smooth out animation)
@@ -73,21 +75,15 @@ void draw() {
     int tempSteps = 0;
     if (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue()) {
       while (tempSteps++ < (int)Parameters.STEPS_PER_FRAME.getValue() && simStep < (int)Parameters.STEPS_PER_GENERATION.getValue()) {
-        //long startM = System.currentTimeMillis();
-
         // Loop through each individual in parallel
         IntStream.range(0, theEnvironment.populationSize()).parallel().forEach(indivIndex -> {
           //for (int indivIndex = 0; indivIndex < theEnvironment.populationSize(); indivIndex++) {
           //if (indivIndex < theEnvironment.populationSize()) {
           if (theEnvironment.at(indivIndex) != null && theEnvironment.at(indivIndex).isAlive()) {
             theEnvironment.at(indivIndex).simStepOneIndiv(simStep);
-
-            //theEnvironment.at(indivIndex).display();
           }
         }
         );
-        //long endM = System.currentTimeMillis();
-        //System.out.printf("SimStep took %d millis\n", (endM - startM));
         display();
         //} else {
         //  indivIndex = 0;
@@ -110,7 +106,6 @@ void draw() {
       if (numberSurvivors == 0) {
         System.out.printf("No survivors, resetting generation! timeElapsed:%s", genTime);
         generations = 0;  // start over
-        //historyOfTheWorld.clear();
       } else {
         ++generations;
         System.out.printf("%d survivors(%.1f%%), timeElapsed:%s", numberSurvivors, 100.0*numberSurvivors/theEnvironment.populationSize(), genTime);
@@ -123,13 +118,11 @@ void draw() {
     }
   } else {
     runMode = RunMode.STOP;
-    //exit();
   }
 }
 
 private void storeHistory() {
   List<Genome> creatureGenomes = new ArrayList<Genome>();
-  //historyOfTheWorld.add(creatureGenomes);
   for (Creature c : theEnvironment.getCreatures()) {
     creatureGenomes.add(new Genome(c.getGenome().getGenome()));
   }
@@ -152,14 +145,12 @@ public void display() {
   if (!toggleDisplay) return;
 
   background(BACKGROUND);
-  pushMatrix();
   theEnvironment.getGrid().display();
   for (Creature c : theEnvironment.getCreatures()) {
     if (c != null && c.isAlive()) {
       c.display();
     }
   }
-  popMatrix();
 }
 
 // Leaving this here to remind me not to do this
@@ -219,7 +210,7 @@ void keyPressed() {
       background(255);
       fill(0);
       textSize(20);
-      text("Simulating in the background...\n"+optionPrompt, 50, 50);
+      text("Simulating in the background...\n\n"+optionPrompt, 50, 50);
       break;
     }
   case 'm':
