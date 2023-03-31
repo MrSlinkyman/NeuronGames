@@ -646,12 +646,50 @@ class Creature {
         double distance = new Coordinate((int)(sizeX - radius), (int)(sizeY - radius)).subtract(location).length();
         return (distance <= radius)? success - distance/radius : failure;
       }
+    case MAZE_FEAR:
+      {
+        double radius = Challenge.MAZE_FEAR.getParameter(2);
+        int cols = (int)BarrierType.MAZE.getArg(0);
+        int rows = (int)BarrierType.MAZE.getArg(1);
+        MazeCell endCell = MazeInstance.getInstance().getEnd();
+
+        int cellWidth = sizeX/cols;
+        int cellHeight = sizeY/rows;
+        int yMin = (rows - 1) * cellHeight;
+        int yMax = rows * cellHeight;
+        int xMin = endCell.getCol() * cellWidth;
+        int xMax = xMin + cellWidth;
+
+
+        if (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax) {
+          // They made it to the end!
+          return success;
+        } else if (location.getX() > cellWidth && location.getY() > cellHeight) {
+          // They moved away from the start, how close are they to the end?
+          Coordinate endCoord = new Coordinate(sizeX-1, sizeY-1);
+          double locationDist = location.subtract(endCoord).length();
+          double maxDistance = new Coordinate(0, 0).subtract(endCoord).length();
+          double locDistanceDiff = maxDistance - locationDist;
+
+          // Are they near a border?
+          double []minDistance = {radius+1.0};
+          Consumer<Coordinate> f = (tloc) -> {
+            if (grid.isBarrierAt(tloc)) {
+              double distance = location.subtract(tloc).length();
+              minDistance[0] = (distance < minDistance[0])? distance : minDistance[0];
+            }
+          };
+          location.visitNeighborhood(radius, f);
+
+          return (minDistance[0] <= radius)? failure: success*(locDistanceDiff/maxDistance);
+        }
+        return failure;
+      }
     case MAZE:
       {
         int cols = (int)BarrierType.MAZE.getArg(0);
         int rows = (int)BarrierType.MAZE.getArg(1);
         MazeCell endCell = MazeInstance.getInstance().getEnd();
-        //int endCell = (int)Challenge.MAZE.getParameter(1);
 
         int cellWidth = sizeX/cols;
         int cellHeight = sizeY/rows;
@@ -661,21 +699,15 @@ class Creature {
         int xMax = xMin + cellWidth;
 
         if (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax) {
-          // Are they in the end?
+          // They made it to the end!
           return success;
-        } else if (location.getX() > cellWidth && location.getY() > cellHeight)
-        {
-          //// Have they moved away from the start and are close to the end?
-          //if ( location.getX() > sizeX-3*cellWidth && location.getY() > sizeY-3*cellHeight) {
-          //  // they are very close!
-          //  return .8;
-          //} else {
+        } else if (location.getX() > cellWidth && location.getY() > cellHeight) {
+          // They moved away from the start, are they near the end?
           Coordinate endCoord = new Coordinate(sizeX-1, sizeY-1);
           double locationDist = location.subtract(endCoord).length();
           double maxDistance = new Coordinate(0, 0).subtract(endCoord).length();
           double locDistanceDiff = maxDistance - locationDist;
           return success*(locDistanceDiff/maxDistance);
-          //}
         }
         return failure;
       }

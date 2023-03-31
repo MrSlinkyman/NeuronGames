@@ -55,7 +55,7 @@ class Grid {
   public Coordinate findEmptyLocation() {
     int maxX = data.length;
     int maxY = data[0].length;
-    if ((Challenge)Parameters.CHALLENGE.getValue() == Challenge.MAZE) {
+    if ((Challenge)Parameters.CHALLENGE.getValue() == Challenge.MAZE || (Challenge)Parameters.CHALLENGE.getValue() == Challenge.MAZE_FEAR) {
       // Creature should randomize near the start
       //maxX /= 2;
       //maxY /=2;
@@ -311,6 +311,52 @@ class Grid {
                   challengeCellColor = color(125, (int)(255*(1.0-distance/radius)));
                   showChallengeCell = true;
                 }
+                break;
+              }
+            case MAZE_FEAR:
+              {
+                double radius = Challenge.MAZE_FEAR.getParameter(2);
+                int cols = (int)BarrierType.MAZE.getArg(0);
+                int rows = (int)BarrierType.MAZE.getArg(1);
+                MazeCell endCell = MazeInstance.getInstance().getEnd();
+
+                int cellWidth = sizeX/cols;
+                int cellHeight = sizeY/rows;
+                int yMin = (rows - 1) * cellHeight;
+                int yMax = rows * cellHeight;
+                int xMin = endCell.getCol() * cellWidth;
+                int xMax = xMin + cellWidth;
+
+                if (location.getY() >= yMin && location.getY() < yMax && location.getX() >= xMin && location.getX() < xMax) {
+                  // This is an end cell
+                  showChallengeCell = true;
+                } else if (location.getX() > cellWidth && location.getY() > cellHeight) {
+                  // This is the portion of the map not in the start cell
+
+                  Coordinate endCoord = new Coordinate(sizeX-1, sizeY-1);
+                  double locationDist = location.subtract(endCoord).length();
+                  double maxDistance = new Coordinate(0, 0).subtract(endCoord).length();
+                  double locDistanceDiff = maxDistance - locationDist;
+                  
+                  // Check if this location is near a border
+                  double []minDistance = {radius+1.0};
+                  Consumer<Coordinate> f = (tloc) -> {
+                    if (isBarrierAt(tloc)) {
+                      double distance = location.subtract(tloc).length();
+                      minDistance[0] = (distance < minDistance[0])? distance : minDistance[0];
+                    }
+                  };
+                  location.visitNeighborhood(radius, f);
+                  if (minDistance[0] <= radius) {
+                    // they are within radius of a wall, this is bad.  No dropoff, just bad
+                    challengeCellColor = color(200, 10, 10, 255);
+                  } else {
+                    // this location is not near a border, show how close to the end it might be
+                    challengeCellColor = color(125, (int)(255.0 * (locDistanceDiff/maxDistance)));
+                  }
+                  showChallengeCell = true;
+                }
+
                 break;
               }
             case MAZE:
@@ -627,7 +673,7 @@ class Grid {
 
   /**
    * Loads barriers, good for mazes, to the current grid.
-   * Note: This does not care about creatures that are currently loaded (yet), 
+   * Note: This does not care about creatures that are currently loaded (yet),
    *       so it's good to reset creatures to a saved set of creatures if loading barriers
    * Note: This will also probably fail if the barriers are bigger than the current grid
    */
@@ -638,7 +684,7 @@ class Grid {
       for (int x = 0; x < entries.length; x++) {
         Coordinate location = new Coordinate(x, y);
         char value = (char)entries[x];
-        if(isOccupiedAt(location)) {
+        if (isOccupiedAt(location)) {
           // TODO there is a creature in this spot, make sure to kill it properly before just overwriting the value
           // pseudo: tell environment that this creature is now gone
         }

@@ -41,9 +41,9 @@ public enum Configuration {
  * TODO for the NOT USED params, determine if we can/should use them and then either remove or use them
  */
 public enum Parameters {
-  STEPS_PER_GENERATION(400), // > 0, default 300
+  STEPS_PER_GENERATION(1000), // > 0, default 300
     MAX_GENERATIONS(200000), // >= 0, default 200000
-    STEPS_PER_FRAME(3), // a frame is equivalent to a call to the draw() method
+    STEPS_PER_FRAME(5), // a frame is equivalent to a call to the draw() method
 
     POPULATION_SENSOR_RADIUS(2.5d), // > 0.0
     SIGNAL_SENSOR_RADIUS(2.0d), // > 0
@@ -59,7 +59,7 @@ public enum Parameters {
     DELETION_RATIO(0.5d), // 0.0..1.0, default 0.5d
     SEXUAL_REPRODUCTION(true), // default true, determines if the sim should use 1 or 2 parents
     CHOOSE_PARENTS_BY_FITNESS(true), // default true
-    CHALLENGE(Challenge.MAZE), // one of Challenge, default CORNER_WEIGHTED, fitness challenge
+    CHALLENGE(Challenge.MAZE_FEAR), // one of Challenge, default CORNER_WEIGHTED, fitness challenge
     BARRIER_TYPE(BarrierType.MAZE), // one of BarrierType, default NONE
     INITIAL_NEURON_OUTPUT(0.5d), // default Neuron output, default 0.5d
     BOUNDARY_TYPE(BoundaryType.BOUNDED), // one of BoundaryType, default BOUNDED, INFINITE currently NOT SUPPORTED
@@ -85,8 +85,8 @@ public enum Parameters {
     EPOCH_FILE_POST("eopch-log.txt"), // file name, default "epoch-log.txt", generational stats
 
     // These are updated automatically and not set via the parameter file
-    PARAMETER_CHANGE_GENERATION_NUMBER(0); // the most recent generation number that an automatic parameter change occurred at, NOT USED
-
+    PARAMETER_CHANGE_GENERATION_NUMBER(0), // the most recent generation number that an automatic parameter change occurred at, NOT USED
+    ;
   private final Object value;
 
   private Parameters(Object value) {
@@ -130,7 +130,9 @@ public enum Challenge {
     LOCATION_SEQUENCE,
     ALTRUISM(.25, .25), // (circle location factor, radius factor)
     ALTRUISM_SACRIFICE(.25), // radius factor
-    MAZE(-1.0, -1.0); // Used in conjunction with BarrierType.MAZE, sets up (begin, end) challenge areas. (random start/end within maze[<0.0], set start [0.0...SIZE_X], end [0.0...SIZE_Y])
+    MAZE(-1.0, -1.0), // Used in conjunction with BarrierType.MAZE, sets up (begin, end) challenge areas. (random start/end within maze[<0.0], set start [0.0...SIZE_X], end [0.0...SIZE_Y])
+    MAZE_FEAR(-1.0, -1.0, 3.0), // like MAZE but the barriers are toxic, (begin, end, radius from barrier)
+    ;
 
   double[] parameters;
 
@@ -164,7 +166,8 @@ public enum BarrierType {
     HORIZONTAL_BAR_CONSTANT(1.0/4.0, 3.0/4.0), // X-factor,Y-factor
     FLOATING_ISLANDS_RANDOM(3, 6), // margin, radius
     SPOTS(5, 5), // numLocations, radius
-    MAZE(7.0, 7.0); // (cols, rows)
+    MAZE(7.0, 7.0), // (cols, rows)
+    ;
 
   private final double[] args;
 

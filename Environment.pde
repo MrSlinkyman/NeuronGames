@@ -303,7 +303,7 @@ class Environment {
     if (!parentGenomes.isEmpty()) {
       initializeNewGeneration(parentGenomes, generation + 1);
       returnCount = parentGenomes.size();
-    } else if ((Challenge)Parameters.CHALLENGE.getValue() != Challenge.MAZE) {
+    } else if ((Challenge)Parameters.CHALLENGE.getValue() != Challenge.MAZE && (Challenge)Parameters.CHALLENGE.getValue() != Challenge.MAZE_FEAR) {
       initializeGeneration0(populationSize());
     } else {
       // in the maze challenge, just let the generation go on unless it's been too long
@@ -395,7 +395,8 @@ class Environment {
     deathQueue.clear();
   }
   public void queueForMove(Creature creature, Coordinate newLocation) {
-    assert creature.isAlive() : String.format("Creature isn't alive! %s", creature);
+    assert creature.isAlive() :
+    String.format("Creature isn't alive! %s", creature);
 
     moveQueue.add(new Object[]{creature, newLocation});
   }
