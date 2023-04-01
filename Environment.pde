@@ -170,17 +170,21 @@ class Environment {
 
   // At the end of each generation, we save a video file (if p.saveVideo is true) and
   // print some genomic statistics to stdout (if p.updateGraphLog is true).
-  public int endOfGeneration(int generation) {
+  public List<Creature> endOfGeneration(int generation) {
     // TODO: Save video0
     Parameters.debugOutput("End of Generation %d\n", generation);
     // TODO: Save stats to console or somewhere
 
-
-    int numberSurvivors = spawnNewGeneration(generations, murderCount.get());
-    if (numberSurvivors > 0 && (generation % (int)Parameters.GENOME_ANALYSIS_STRIDE.getValue() == 0)) {
+    List<Creature> survivors = spawnNewGeneration(generations, murderCount.get());
+    
+    int numberSurvivors = survivors.size();
+    if (numberSurvivors > 0){
+      if(generation % (int)Parameters.GENOME_ANALYSIS_STRIDE.getValue() == 0) {
       displaySampleGenomes((int)Parameters.DISPLAY_SAMPLE_GENOMES.getValue());
+      }
+      
     }
-    return numberSurvivors;
+    return survivors;
   }
 
   // At this point, the deferred death queue and move queue have been processed
@@ -191,9 +195,9 @@ class Environment {
   // new individuals. This is inefficient when there are lots of survivors because
   // we could have reused (with mutations) the survivors' genomes and neural
   // nets instead of rebuilding them.
-  // Returns number of survivor-reproducers.
+  // Returns survivor-reproducers.
   // Must be called in single-thread mode between generations.
-  public int spawnNewGeneration(int generation, int murderCount) {
+  public List<Creature> spawnNewGeneration(int generation, int murderCount) {
     int sacrificedCount = 0; // for the altruism challenge
 
     // This container will hold the indexes and survival scores (0.0..1.0)
@@ -285,17 +289,17 @@ class Environment {
       }
     }
 
-    // Sort the indexes of the parents by their fitness scores
-    List<Map.Entry<Integer, Double>> sortedParents = new ArrayList<Map.Entry<Integer, Double>>(parents.entrySet());
-    Collections.sort(sortedParents, new Comparator<Map.Entry<Integer, Double>>() {
+
+    List<Map.Entry<Integer, Double>> sortedParents = parents.entrySet().stream().sorted(new Comparator<Map.Entry<Integer, Double>>() {
       public int compare(Map.Entry<Integer, Double> parent1, Map.Entry<Integer, Double> parent2) {
         return Double.compare(parent2.getValue(), parent1.getValue());
-      }
-    }
-    );
-
+      }}).collect(Collectors.toList()); 
+    
+    List<Creature> survivors = new ArrayList<Creature>();
     for (Map.Entry<Integer, Double> parent : sortedParents) {
-      parentGenomes.add(at(parent.getKey()).getGenome());
+      Creature c = at(parent.getKey());
+      parentGenomes.add(c.getGenome());
+      survivors.add(c);
     }
 
     int returnCount = 0;
@@ -315,7 +319,7 @@ class Environment {
       }
     }
 
-    return returnCount;
+    return survivors;
   }
 
   /**

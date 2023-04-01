@@ -99,7 +99,8 @@ void draw() {
       display();
     } else {
       simStep = 0;
-      int numberSurvivors = theEnvironment.endOfGeneration(generations);
+      List<Creature> survivors = theEnvironment.endOfGeneration(generations); 
+      int numberSurvivors = survivors.size();
       System.out.printf("Generation:%d: ", generations);
 
       String genTime = getGenTime();
@@ -114,6 +115,9 @@ void draw() {
 
       storeHistory();
       display();
+      for(Creature c : survivors){
+        c.display(color(10, 250, 10));
+      }
       if (generations > 0 && generations % (int)Parameters.GENOME_SAVE_STRIDE.getValue() == 0) saveGeneration(generations, String.format("autosave-generation-%2$d-%1$tF-%1$ts.bin", Calendar.getInstance(), generations));
     }
   } else {

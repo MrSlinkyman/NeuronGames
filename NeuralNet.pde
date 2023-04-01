@@ -1,4 +1,4 @@
-import java.util.List; //<>// //<>//
+import java.util.List; //<>//
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Map;
@@ -13,7 +13,6 @@ import java.util.Collections;
 //import org.neuroph.nnet.comp.neuron.InputOutputNeuron;
 //import org.neuroph.core.input.Sum;
 //import org.neuroph.core.transfer.Tanh;
-
 
 class NeuralNet {
   List<Gene> connections;
@@ -34,10 +33,10 @@ class NeuralNet {
   public String toString() {
     String r = "Network:\n";
     for (Gene connection : connections) {
-      r+=String.format("\t%s\n",connection);
+      r+=String.format("\t%s\n", connection);
     }
     for (CreatureNeuron neuron : neurons) {
-      r+=String.format("\t%s\n",neuron);
+      r+=String.format("\t%s\n", neuron);
     }
     return r;
   }
@@ -46,35 +45,35 @@ class NeuralNet {
     return connections;
   }
   /**
-    * This function does a neural net feed-forward operation, from sensor (input) neurons
-    * through internal neurons to action (output) neurons. The feed-forward
-    * calculations are evaluated once each simulator step (simStep).
-    * 
-    * There is no back-propagation in this simulator. Once an individual's neural net
-    * brain is wired at birth, the weights and topology do not change during the
-    * individual's lifetime.
-    * 
-    * The neurons list contains internal neurons, and the connections list
-    * holds the connections between the neurons.
-    * 
-    * We have three types of neurons:
-    * 
-    * input sensors - each gives a value in the range (0.0..1.0).
-    * Values are obtained from getSource().
-    * 
-    * internal neurons - each takes inputs from sensors or other internal neurons;
-    * each has output value in the range (-1.0..1.0). The output value for each neuron
-    * is stored in the neurons list and survives from one simStep to the next. 
-    * (For example, a neuron that feeds itself will use its output value that was
-    * latched from the previous simStep.) Inputs to the neurons are summed each simStep
-    * in a temporary container and then discarded after the neurons' outputs are computed.
-    * 
-    * action (output) neurons - each takes inputs from sensors or other internal
-    * neurons; In this function, each has an output value in an arbitrary range
-    * (because they are the raw sums of zero or more weighted inputs).
-    * The values of the action neurons are saved in local container
-    * actionLevels[] which is returned to the caller by value (thanks RVO).
-    */
+   * This function does a neural net feed-forward operation, from sensor (input) neurons
+   * through internal neurons to action (output) neurons. The feed-forward
+   * calculations are evaluated once each simulator step (simStep).
+   *
+   * There is no back-propagation in this simulator. Once an individual's neural net
+   * brain is wired at birth, the weights and topology do not change during the
+   * individual's lifetime.
+   *
+   * The neurons list contains internal neurons, and the connections list
+   * holds the connections between the neurons.
+   *
+   * We have three types of neurons:
+   *
+   * input sensors - each gives a value in the range (0.0..1.0).
+   * Values are obtained from getSource().
+   *
+   * internal neurons - each takes inputs from sensors or other internal neurons;
+   * each has output value in the range (-1.0..1.0). The output value for each neuron
+   * is stored in the neurons list and survives from one simStep to the next.
+   * (For example, a neuron that feeds itself will use its output value that was
+   * latched from the previous simStep.) Inputs to the neurons are summed each simStep
+   * in a temporary container and then discarded after the neurons' outputs are computed.
+   *
+   * action (output) neurons - each takes inputs from sensors or other internal
+   * neurons; In this function, each has an output value in an arbitrary range
+   * (because they are the raw sums of zero or more weighted inputs).
+   * The values of the action neurons are saved in local container
+   * actionLevels[] which is returned to the caller by value (thanks RVO).
+   */
   public double[] feedForward(int simStep)
   {
     // This container is used to return values for all the action outputs. This array
@@ -435,7 +434,8 @@ class NeuralNet {
       // Single-threaded section: end of generation processing
       e.endOfGeneration(j);
       //paramManager.updateFromConfigFile(generation + 1);
-      int numberSurvivors = e.spawnNewGeneration(j, murderCount.get());
+      List<Creature> survivors = e.spawnNewGeneration(j, murderCount.get());
+      int numberSurvivors = survivors.size();
       if (numberSurvivors > 0) {
         e.displaySampleGenomes(1);
       }
@@ -457,7 +457,7 @@ class CreatureNeuron {
   private double output;
 
   CreatureNeuron (int index, boolean driven, double output) {
-    this.index = index; 
+    this.index = index;
     this.driven = driven;
     this.output = output;
   }

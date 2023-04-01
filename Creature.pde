@@ -325,13 +325,18 @@ class Creature {
     return iGraph;
   }
 
-  private void display () {
+  public void display (color c) {
+    if (toggleDisplay) {
+      noStroke();
+      fill(c);
+      circle(location.getX()*size+size/2, location.getY()*size+size/2, size);
+    }
+  }
+  public void display () {
     if (toggleDisplay) {
       int myColor[] = makeGeneticColor();
       int compositeColor = color(myColor[0], myColor[1], myColor[2]);
-      noStroke();
-      fill(compositeColor);
-      circle(location.getX()*size+size/2, location.getY()*size+size/2, size);
+      display(compositeColor);
     }
   }
 
