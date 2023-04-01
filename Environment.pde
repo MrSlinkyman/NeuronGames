@@ -492,13 +492,13 @@ class Environment {
     System.out.printf("Sensors in use:\n");
     for (int i = 0; i < sensorCounts.length; ++i) {
       if (sensorCounts[i] > 0) {
-        System.out.printf("  %d - %s\n", sensorCounts[i], Sensor.values()[i].getText());
+        System.out.printf("  %d%s - %s\n", sensorCounts[i], (Sensor.values()[i].isEnabled())?"":"(disabled)",Sensor.values()[i].getText());
       }
     }
     System.out.printf("Actions in use:\n");
     for (int i = 0; i < actionCounts.length; ++i) {
       if (actionCounts[i] > 0) {
-        System.out.printf("  %d - %s\n", actionCounts[i], CreatureAction.values()[i].getName());
+        System.out.printf("  %d%s - %s\n", actionCounts[i], (CreatureAction.values()[i].isEnabled())?"":"(disabled)",CreatureAction.values()[i].getName());
       }
     }
   }

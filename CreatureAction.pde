@@ -19,9 +19,8 @@ enum CreatureAction {
     MOVE_LEFT("move left", "MvL"), // W
     MOVE_RIGHT("move right", "MvR"), // W
     MOVE_REVERSE("move reverse", "Mrv"), // W
-    ROTATE("Rotate relative to creature", "Rr"), // W
-    ROTATE_ABSOLUTE("Rotate relative to world", "Ra"),
-    //NUM_ACTIONS(), // <<----------------- END OF ACTIVE ACTIONS MARKER
+    ROTATE("Rotate relative to creature", "Rr", false), // W
+    ROTATE_ABSOLUTE("Rotate relative to world", "Ra", false),
     KILL_FORWARD("kill fwd", "Klf", false);      // W
 
   private final String name;
