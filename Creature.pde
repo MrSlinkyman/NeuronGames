@@ -29,7 +29,7 @@ class Creature {
     this.location = location.clone();
     this.birthLocation = location.clone();
     this.grid = environment.getGrid();
-    this.lastMoveDirection = randomAxis();
+    this.lastMoveDirection = new Direction();
     this.responsiveness = (double)Parameters.RESPONSIVENESS.getValue();
     this.oscPeriod = (int)Parameters.OSC_PERIOD.getValue();
     this.longProbeDistance = (int)Parameters.LONG_PROBE_DISTANCE.getValue();
@@ -43,12 +43,6 @@ class Creature {
     this.brain = new NeuralNet(this);
   }
 
-  private Direction randomAxis() {
-    Random rand = new Random();
-    Direction d = new Direction(Compass.values()[rand.nextInt(Compass.values().length)]);
-    if (d.direction == Compass.CENTER) d = randomAxis();
-    return d;
-  }
   public int getChallengeBits() {
     return challengeBits;
   }
@@ -132,7 +126,7 @@ class Creature {
       double newPeriodf01 = (double) ((Math.tanh(periodf) + 1.0) / 2.0); // convert to 0.0..1.0
       int newPeriod = 1 + (int)(1.5 + Math.exp(7.0 * newPeriodf01));
     assert newPeriod >= 2 && newPeriod <= 2048 :
-      newPeriod;
+      String.format("bad oscillator:%f", newPeriod);
       oscPeriod = newPeriod;
     }
 
@@ -172,7 +166,7 @@ class Creature {
       level *= responsivenessAdjusted;
       //if (level > killThreshold && prob2bool((level - ACTION_MIN) / ACTION_RANGE)) {
       if (level > killThreshold && prob2bool(level)) {
-        Coordinate otherLoc = location.add(lastMoveDirection);
+        Coordinate otherLoc = location.add(getLastMoveDirection());
         if (grid.isInBounds(otherLoc) && grid.isOccupiedAt(otherLoc)) {
           Creature indiv2 = environment.findCreature(otherLoc);
           assert location.subtract(indiv2.getLocation()).length() == 1 :
@@ -203,7 +197,7 @@ class Creature {
   public void executeMoveActions(double[] actionLevels, double responsivenessAdjusted) {
     double level;
     Coordinate offset;
-    Coordinate lastMoveOffset = lastMoveDirection.asNormalizedCoordinate();
+    Coordinate lastMoveOffset = getLastMoveDirection().asNormalizedCoordinate();
 
     // moveX,moveY will be the accumulators that will hold the sum of all the
     // urges to move along each axis. (+- floating values of arbitrary range)
@@ -227,26 +221,26 @@ class Creature {
     }
     if (CreatureAction.MOVE_LEFT.isEnabled()) {
       level = actionLevels[CreatureAction.MOVE_LEFT.ordinal()];
-      offset = lastMoveDirection.rotate90CCW().asNormalizedCoordinate();
+      offset = getLastMoveDirection().rotate90CCW().asNormalizedCoordinate();
       moveX += offset.x * level;
       moveY += offset.y * level;
     }
     if (CreatureAction.MOVE_RIGHT.isEnabled()) {
       level = actionLevels[CreatureAction.MOVE_RIGHT.ordinal()];
-      offset = lastMoveDirection.rotate90CW().asNormalizedCoordinate();
+      offset = getLastMoveDirection().rotate90CW().asNormalizedCoordinate();
       moveX += offset.x * level;
       moveY += offset.y * level;
     }
     if (CreatureAction.MOVE_RL.isEnabled()) {
       level = actionLevels[CreatureAction.MOVE_RL.ordinal()];
-      offset = lastMoveDirection.rotate90CW().asNormalizedCoordinate();
+      offset = getLastMoveDirection().rotate90CW().asNormalizedCoordinate();
       moveX += offset.x * level;
       moveY += offset.y * level;
     }
 
     if (CreatureAction.MOVE_RANDOM.isEnabled()) {
       level = actionLevels[CreatureAction.MOVE_RANDOM.ordinal()];
-      offset = new Direction(new Coordinate().randomize(grid.getSizeX(), grid.getSizeY())).asNormalizedCoordinate();
+      offset = new Direction().asNormalizedCoordinate();
       moveX += offset.x * level;
       moveY += offset.y * level;
     }
@@ -889,7 +883,8 @@ class Creature {
         break;
       }
     default:
-      assert(false);
+    assert false :
+      String.format("Bad Sensor:%s", sensor);
       break;
     }
 

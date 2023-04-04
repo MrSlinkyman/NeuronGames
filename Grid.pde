@@ -25,10 +25,10 @@ class Grid {
     return this;
   }
 
-  public Grid zeroFill() {
-    for (int i = 0; i < data.length; i++) {
-      for (int j = 0; j < data[i].length; j++) {
-        data[i][j] = 0;
+  public Grid emptyFill() {
+    for (int x = 0; x < data.length; x++) {
+      for (int y = 0; y < data[x].length; y++) {
+        data[x][y] = GridState.EMPTY.getValue();
       }
     }
     return this;
@@ -59,8 +59,12 @@ class Grid {
   }
 
   public Coordinate findEmptyLocation() {
+    return findEmptyLocation(2*(int)Configuration.POPULATION.getValue());
+  }
+  private Coordinate findEmptyLocation(int iterationMax) {
     int maxX = data.length;
     int maxY = data[0].length;
+    if(iterationMax <= 0) assert false : "No empty locations!";
     if ((Challenge)Parameters.CHALLENGE.getValue() == Challenge.MAZE || (Challenge)Parameters.CHALLENGE.getValue() == Challenge.MAZE_FEAR) {
       // Creature should randomize near the start
       //maxX /= 2;
@@ -69,7 +73,7 @@ class Grid {
       maxY = (int)(maxY/BarrierType.MAZE.getArg(1)) - 1;
     }
     Coordinate location = new Coordinate().randomize(maxX, maxY);
-    return isEmptyAt(location)?location:findEmptyLocation();
+    return isEmptyAt(location)?location:findEmptyLocation(--iterationMax);
   }
   public boolean isInBounds(Coordinate loc) {
     return loc.getX() >= 0 && loc.getX() < getSizeX() && loc.getY() >= 0 && loc.getY() < getSizeY();
@@ -749,8 +753,8 @@ class Grid {
    above midrange if density is greatest in forward direction.
    */
   public double getPopulationDensityAlongAxis(Coordinate loc, Direction dir) {
-    assert !dir.equals(new Direction(Compass.CENTER)) :
-    String.format("Direction is CENTER:%s", dir); // require a defined axis
+    //if(dir.equals(new Direction(Compass.CENTER))) return 0.5;
+    assert !dir.equals(new Direction(Compass.CENTER)) : String.format("Direction is CENTER:%s, loc:%s", dir, loc); // require a defined axis
 
     double sensorRadius = (double)Parameters.POPULATION_SENSOR_RADIUS.getValue();
     final double[] sum = {0.0};
@@ -823,7 +827,7 @@ class Grid {
 }
 
 enum GridState {
-  EMPTY(0),
+  EMPTY(-1),
     BARRIER(Integer.MAX_VALUE);
 
   private int value;

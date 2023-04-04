@@ -147,8 +147,8 @@ public class Signals {
   */
   public double getSignalDensityAlongAxis(int layerNum, Coordinate loc, Direction dir) {
 
-    assert !dir.equals(new Direction(Compass.CENTER)) :
-    dir; // require a defined axis
+    //if(dir.equals(new Direction(Compass.CENTER))) return 0.5;
+    assert !dir.equals(new Direction(Compass.CENTER)) : dir; // require a defined axis
 
     double signalSensorRadius = (double)Parameters.SIGNAL_SENSOR_RADIUS.getValue();
     double[] sum = {0.0};

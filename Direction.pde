@@ -1,8 +1,16 @@
 class Direction {
   private Compass direction;
+  private float angle;
+  private PVector directionVector;
 
+  /**
+   * in the original code there was a "random8" function that randomized the Direction
+   * ensuring it never was CENTER.
+   * Using the blank constructor as that randomization routine.
+   */
   Direction() {
-    this.direction = Compass.CENTER;
+    this(Compass.NORTH);
+    this.rotate(new Random().nextInt()%8);
   }
 
   Direction (Compass c) {
@@ -14,8 +22,8 @@ class Direction {
       Compass.SOUTH, Compass.CENTER, Compass.SOUTHWEST, Compass.NORTH, Compass.SOUTHEAST, Compass.EAST, Compass.NORTH, Compass.NORTH, Compass.NORTH, Compass.NORTH, Compass.WEST, Compass.NORTHWEST, Compass.NORTH, Compass.NORTHEAST, Compass.NORTH, Compass.NORTH};
 
     int tanN = 13860, tanD = 33461;
-    int xp = coordinate.getX()*tanD + coordinate.getY() + tanN;
-    int yp = coordinate.getY()*tanD - coordinate.getX() + tanN;
+    int xp = coordinate.getX()*tanD + coordinate.getY() * tanN;
+    int yp = coordinate.getY()*tanD - coordinate.getX() * tanN;
 
     this.direction = conversion[(yp > 0?1:0) * 8 + (xp > 0?1:0) * 4 + (yp > xp?1:0) * 2 + (yp >= -xp?1:0)];
   }

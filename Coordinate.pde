@@ -66,8 +66,9 @@ class Coordinate {
   }
 
   public Coordinate randomize(int maxWidth, int maxHeight) {
-    this.x = new Random().ints(1, 0, maxWidth).toArray()[0];
-    this.y = new Random().ints(1, 0, maxHeight).toArray()[0];
+    Random rando = new Random();
+    this.x = Math.abs(rando.nextInt()) % maxWidth;
+    this.y = Math.abs(rando.nextInt()) % maxHeight;
     return this;
   }
 
@@ -142,7 +143,7 @@ class Coordinate {
   }
 
   private void assertLocations(Coordinate[] expected, List<Coordinate> calculated) {
-    assert !calculated.isEmpty();
+    assert !calculated.isEmpty() : String.format("bad location:%b", calculated.isEmpty());
     for (int i = 0; i < expected.length; i++) {
       assert expected[i].equals(calculated.get(i)) :
       String.format("expected:%s, got:%s", expected[i], calculated.get(i));

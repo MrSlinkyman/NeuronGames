@@ -47,7 +47,7 @@ class Environment {
   }
 
   public void initializeGeneration0(String fileToLoad) {
-    grid.zeroFill();
+    grid.emptyFill();
     grid.createBarrier();
     signals.zeroFill();
     creatures.clear();
@@ -72,7 +72,7 @@ class Environment {
   }
 
   public void initializeGeneration0(int population) {
-    grid.zeroFill();
+    grid.emptyFill();
     grid.createBarrier();
     signals.zeroFill();
     creatures.clear();
@@ -85,7 +85,7 @@ class Environment {
   }
 
   public void initializeNewGeneration(List<Genome> parents, int generation) {
-    grid.zeroFill();
+    grid.emptyFill();
     grid.createBarrier();
     signals.zeroFill();
 
@@ -176,13 +176,12 @@ class Environment {
     // TODO: Save stats to console or somewhere
 
     List<Creature> survivors = spawnNewGeneration(generations, murderCount.get());
-    
+
     int numberSurvivors = survivors.size();
-    if (numberSurvivors > 0){
-      if(generation % (int)Parameters.GENOME_ANALYSIS_STRIDE.getValue() == 0) {
-      displaySampleGenomes((int)Parameters.DISPLAY_SAMPLE_GENOMES.getValue());
+    if (numberSurvivors > 0) {
+      if (generation % (int)Parameters.GENOME_ANALYSIS_STRIDE.getValue() == 0) {
+        displaySampleGenomes((int)Parameters.DISPLAY_SAMPLE_GENOMES.getValue());
       }
-      
     }
     return survivors;
   }
@@ -293,8 +292,10 @@ class Environment {
     List<Map.Entry<Integer, Double>> sortedParents = parents.entrySet().stream().sorted(new Comparator<Map.Entry<Integer, Double>>() {
       public int compare(Map.Entry<Integer, Double> parent1, Map.Entry<Integer, Double> parent2) {
         return Double.compare(parent2.getValue(), parent1.getValue());
-      }}).collect(Collectors.toList()); 
-    
+      }
+    }
+    ).collect(Collectors.toList());
+
     List<Creature> survivors = new ArrayList<Creature>();
     for (Map.Entry<Integer, Double> parent : sortedParents) {
       Creature c = at(parent.getKey());
@@ -415,7 +416,10 @@ class Environment {
       Creature creature = (Creature)record[0];
       if (creature.isAlive()) {
         Coordinate newLocation = (Coordinate)record[1];
-        Direction moveDirection = new Direction(newLocation.subtract(creature.getLocation()));
+        Coordinate c = newLocation.subtract(creature.getLocation());
+        Direction moveDirection = new Direction(c);
+        if (moveDirection.direction == Compass.CENTER) System.out.printf("moveDirection:%s, location:%s, newLocation:%s, diff:%s\n", moveDirection, creature.getLocation(), newLocation, c);
+
         if (grid.isEmptyAt(newLocation)) {
           grid.set(creature.getLocation(), GridState.EMPTY);
           grid.set(newLocation, creature.getIndex());
@@ -492,13 +496,13 @@ class Environment {
     System.out.printf("Sensors in use:\n");
     for (int i = 0; i < sensorCounts.length; ++i) {
       if (sensorCounts[i] > 0) {
-        System.out.printf("  %d%s - %s\n", sensorCounts[i], (Sensor.values()[i].isEnabled())?"":"(disabled)",Sensor.values()[i].getText());
+        System.out.printf("  %d%s - %s\n", sensorCounts[i], (Sensor.values()[i].isEnabled())?"":"(disabled)", Sensor.values()[i].getText());
       }
     }
     System.out.printf("Actions in use:\n");
     for (int i = 0; i < actionCounts.length; ++i) {
       if (actionCounts[i] > 0) {
-        System.out.printf("  %d%s - %s\n", actionCounts[i], (CreatureAction.values()[i].isEnabled())?"":"(disabled)",CreatureAction.values()[i].getName());
+        System.out.printf("  %d%s - %s\n", actionCounts[i], (CreatureAction.values()[i].isEnabled())?"":"(disabled)", CreatureAction.values()[i].getName());
       }
     }
   }
