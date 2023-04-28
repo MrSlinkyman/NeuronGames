@@ -124,7 +124,7 @@ class Gene {
 
   private byte[] randomGenes() {
     byte[] gene = new byte[4];
-    new Random().nextBytes(gene);
+    globalRandom.nextBytes(gene);
     return gene;
   }
 

@@ -37,7 +37,7 @@ class Genome {
     // random parent (or parents if sexual reproduction) with random
     // mutations
     Genome genome = new Genome(0);
-    Random rando = new Random();
+    Random rando = globalRandom;
     int parent1Idx;
     int parent2Idx;
 
@@ -137,7 +137,7 @@ class Genome {
 
   private void randomBitFlip() {
     int method = 1;
-    Random rando = new Random();
+    Random rando = globalRandom;
 
     int byteIndex = rando.nextInt(genes[0].getBlueprint().length );
     int elementIndex = rando.nextInt(genes.length);
@@ -173,14 +173,14 @@ class Genome {
   assert newGeneLength > 0 :
     String.format("Cripping to a bad length:%d, original length", newGeneLength, size());
     if (genes.length > newGeneLength) {
-      genes = (new Random().nextBoolean())?
+      genes = (globalRandom.nextBoolean())?
         Arrays.copyOfRange(genes, genes.length - newGeneLength, genes.length) :
         Arrays.copyOfRange(genes, 0, newGeneLength);
     }
   }
 
   public void applyPointMutations() {
-    Random rando = new Random();
+    Random rando = globalRandom;
     int numberOfGenes = genes.length;
     while (numberOfGenes-- > 0) {
       if (rando.nextDouble() < (double)Parameters.POINT_MUTATION_RATE.getValue()) {
@@ -189,7 +189,7 @@ class Genome {
     }
   }
   void randomInsertDeletion() {
-    Random rando = new Random();
+    Random rando = globalRandom;
     double probability = (double)Parameters.GENE_INSERTION_DELETION_RATE.getValue();
     if (rando.nextDouble() < probability) {
       if (rando.nextDouble() < (double)Parameters.DELETION_RATIO.getValue()) {
@@ -233,7 +233,7 @@ class Genome {
 
   public Genome randomize(int minGenomeSize, int maxGenomeSize) {
     // we add 1 to the max side of the genome range since the random ints used here is inclusize min, exclusive max
-    int genomeSize = (genes == null || genes.length == 0)?new Random().ints(1, minGenomeSize, maxGenomeSize+1).toArray()[0]:genes.length;
+    int genomeSize = (genes == null || genes.length == 0)?globalRandom.ints(1, minGenomeSize, maxGenomeSize+1).toArray()[0]:genes.length;
     genes = new Gene[genomeSize];
     for (int i = 0; i< genomeSize; i++) {
       genes[i] = new Gene();

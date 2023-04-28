@@ -21,8 +21,12 @@ public enum Configuration {
     GENOME_INITIAL_LENGTH_MIN(50), // > 0 and < GENOME_MAX_LENGTH, default GENOME_MAX_LENGTH, typically equal to MAX
     GENOME_INITIAL_LENGTH_MAX(50), // > 0 and < GENOME_MAX_LENGTH, default GENOME_MAX_LENGTH, typically equal to MIN
 
-    DETERMINISTIC(false), // boolean, default false, used to initialize the random number generators with RNG_SEED NOT USED
-    RNG_SEED(12345678), // >= 0, default 12345678, NOT USED
+    DETERMINISTIC(false), // boolean, default false, used to initialize the random number generators with RNG_SEED
+    RNG_SEED(12345678l), // >= 0, default 12345678
+
+    LOG_DIR("./logs/"), // default ./logs/, NOT USED
+    IMAGE_DIR("./images/"), // default ./images/, NOT USED
+    GRAPH_LOG_UPDATE_COMMAND("/usr/bin/gnuplot --persist ./tools/graphlog.gp"), // NOT USED
     ;
   private Object value;
 
@@ -41,7 +45,7 @@ public enum Configuration {
  * TODO for the NOT USED params, determine if we can/should use them and then either remove or use them
  */
 public enum Parameters {
-  STEPS_PER_GENERATION(1000), // > 0, default 300
+  STEPS_PER_GENERATION(2000), // > 0, default 300
     MAX_GENERATIONS(200000), // >= 0, default 200000
     STEPS_PER_FRAME(5), // a frame is equivalent to a call to the draw() method
 
@@ -78,9 +82,6 @@ public enum Parameters {
     VIDEO_SAVE_FIRST_FRAMES(2), // >= 0, overrides videoStride, default 2, NOT USED
     DISPLAY_SCALE(8), // default 8, used for scaling the movie, NOT USED
 
-    LOG_DIR("./logs/"), // default ./logs/, NOT USED
-    IMAGE_DIR("./images/"), // default ./images/, NOT USED
-    GRAPH_LOG_UPDATE_COMMAND("/usr/bin/gnuplot --persist ./tools/graphlog.gp"), // NOT USED
     FULL_OUTPUT(false), // boolean, default false, NOT USED
     EPOCH_FILE_POST("eopch-log.txt"), // file name, default "epoch-log.txt", generational stats
 

@@ -250,7 +250,7 @@ class Grid {
               // This challenge is handled in endOfSimStep(), where individuals may die
               // at the end of any sim step. There is nothing else to do here at the
               // end of a generation. All remaining alive become parents.
-              int radioactiveX = (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue() * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Configuration.SIZE_X.getValue() - 1;
+              int radioactiveX = (simStep < paramManager.getParams().stepsPerGeneration * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Configuration.SIZE_X.getValue() - 1;
 
               int distanceFromRadioactiveWall = Math.abs(location.getX() - radioactiveX);
               if (distanceFromRadioactiveWall < (int)Configuration.SIZE_X.getValue() *Challenge.RADIOACTIVE_WALLS.getParameter(1)) {
@@ -470,9 +470,9 @@ class Grid {
       }
     case VERTICAL_BAR_RANDOM:
       {
-        int minX = (int)(new Random().nextDouble()*sizeX*xFactor);
+        int minX = (int)(globalRandom.nextDouble()*sizeX*xFactor);
         int maxX = minX+1;
-        int minY = (int)(new Random().nextDouble()*sizeY/2*yFactor);
+        int minY = (int)(globalRandom.nextDouble()*sizeY/2*yFactor);
         int maxY = minY+sizeY/2;
 
         // code for vertical bar with random factors
@@ -754,7 +754,8 @@ class Grid {
    */
   public double getPopulationDensityAlongAxis(Coordinate loc, Direction dir) {
     //if(dir.equals(new Direction(Compass.CENTER))) return 0.5;
-    assert !dir.equals(new Direction(Compass.CENTER)) : String.format("Direction is CENTER:%s, loc:%s", dir, loc); // require a defined axis
+    assert !dir.equals(new Direction(Compass.CENTER)) :
+    String.format("Direction is CENTER:%s, loc:%s", dir, loc); // require a defined axis
 
     double sensorRadius = (double)Parameters.POPULATION_SENSOR_RADIUS.getValue();
     final double[] sum = {0.0};

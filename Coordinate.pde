@@ -66,9 +66,8 @@ class Coordinate {
   }
 
   public Coordinate randomize(int maxWidth, int maxHeight) {
-    Random rando = new Random();
-    this.x = Math.abs(rando.nextInt()) % maxWidth;
-    this.y = Math.abs(rando.nextInt()) % maxHeight;
+    this.x = Math.abs(globalRandom.nextInt()) % maxWidth;
+    this.y = Math.abs(globalRandom.nextInt()) % maxHeight;
     return this;
   }
 
@@ -91,7 +90,7 @@ class Coordinate {
         int y = getY() + dy;
         //assert y >= 0 && y < gridHeight :
         //  y;
-        
+
         // TODO if x,y are negative, need to first adjust if BoundaryType.INFINITE, can't rely on the constructor
         f.accept(new Coordinate(x, y));
       }
@@ -143,7 +142,8 @@ class Coordinate {
   }
 
   private void assertLocations(Coordinate[] expected, List<Coordinate> calculated) {
-    assert !calculated.isEmpty() : String.format("bad location:%b", calculated.isEmpty());
+    assert !calculated.isEmpty() :
+    String.format("bad location:%b", calculated.isEmpty());
     for (int i = 0; i < expected.length; i++) {
       assert expected[i].equals(calculated.get(i)) :
       String.format("expected:%s, got:%s", expected[i], calculated.get(i));

@@ -281,7 +281,7 @@ class Creature {
   public boolean prob2bool(double factor) {
   assert factor >= 0.0 && factor <= 1.0 :
     String.format("In prob2bool, factor(%f) is not correct", factor);
-    return (new Random().nextDouble() < factor);
+    return (globalRandom.nextDouble() < factor);
   }
   // This takes a probability from 0.0..1.0 and adjusts it according to an
   // exponential curve. The steepness of the curve is determined by the K factor
@@ -722,7 +722,7 @@ class Creature {
   {
     int sizeX = (int)Configuration.SIZE_X.getValue();
     int sizeY = (int)Configuration.SIZE_Y.getValue();
-    int steps = (int)Parameters.STEPS_PER_GENERATION.getValue();
+    int steps = paramManager.getParams().stepsPerGeneration;
     double sensorRadius = (double)Parameters.POPULATION_SENSOR_RADIUS.getValue();
     int barrierDistance = (int)Parameters.SHORT_PROBE_BARRIER_DISTANCE.getValue();
 
@@ -854,7 +854,7 @@ class Creature {
       break;
     case RANDOM:
       // Returns a random sensor value in the range 0.0..1.0.
-      sensorVal = new Random().nextDouble();
+      sensorVal = globalRandom.nextDouble();
       break;
     case SIGNAL0:
       // Returns magnitude of signal0 in the local neighborhood, with

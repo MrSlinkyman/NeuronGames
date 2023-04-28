@@ -109,13 +109,13 @@ class Environment {
   }
 
   void endOfSimStep(int simStep, int generation) {
-    Random rando = new Random();
+    Random rando = globalRandom;
     if ((Challenge)Parameters.CHALLENGE.getValue() == Challenge.RADIOACTIVE_WALLS) {
       // During the first half of the generation, the west wall is radioactive,
       // where X == 0. In the last half of the generation, the east wall is
       // radioactive, where X = the area width - 1. There's an exponential
       // falloff of the danger, falling off to zero at the arena half line.
-      int radioactiveX = (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue() * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Configuration.SIZE_X.getValue() - 1;
+      int radioactiveX = (simStep < paramManager.getParams().stepsPerGeneration * Challenge.RADIOACTIVE_WALLS.getParameter(0)) ? 0 : (int)Configuration.SIZE_X.getValue() - 1;
 
       IntStream.range(0, populationSize()).parallel().forEach(index -> {
         Creature indiv = at(index);
@@ -313,7 +313,7 @@ class Environment {
     } else {
       // in the maze challenge, just let the generation go on unless it's been too long
       System.out.printf("Maze Challenge: keep going! generationsWithNoSurvivors:%d\n", generationsWithNoSurvivors);
-      if (++generationsWithNoSurvivors > (int)Parameters.STEPS_PER_GENERATION.getValue()) {
+      if (++generationsWithNoSurvivors > paramManager.getParams().stepsPerGeneration) {
         initializeGeneration0(populationSize());
       } else {
         returnCount = populationSize();
@@ -339,7 +339,7 @@ class Environment {
 
   private int averageGenomeLength()
   {
-    Random rando = new Random();
+    Random rando = globalRandom;
     int count = 100;
     int numberSamples = 0;
     int sum = 0;
@@ -358,7 +358,7 @@ class Environment {
    */
   private double geneticDiversity()
   {
-    Random rando = new Random();
+    Random rando = globalRandom;
     if (populationSize() < 2) {
       return 0.0;
     }
@@ -458,7 +458,7 @@ class Environment {
   }
 
   void displaySampleGenomes(int count) {
-    Random rando = new Random();
+    Random rando = globalRandom;
     System.out.printf("---------------------------\n");
     for (int index = rando.nextInt(populationSize()); count > 0; index=rando.nextInt(populationSize())) {
       Creature c = at(index);

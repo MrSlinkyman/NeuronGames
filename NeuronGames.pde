@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 import java.util.Calendar;
+import java.util.Random;
+
+ParamManager paramManager;
+Random globalRandom;
 
 void settings() {
   size((int)Configuration.SIZE_X.getValue() * (int)Configuration.AGENT_SIZE.getValue(), (int)Configuration.SIZE_Y.getValue() * (int)Configuration.AGENT_SIZE.getValue());
@@ -22,6 +26,7 @@ Environment theEnvironment;
 //List<List<Genome>> historyOfTheWorld = new ArrayList<List<Genome>>();
 long genTimer;
 String optionPrompt =
+  "A or a - Load config file (default 'simulator.ini')\n"+
   "B or b - Start Simulation\n"+
   "C or c - Toggle Challenge display\n"+
   "L or l - Load creatures\n"+
@@ -32,9 +37,11 @@ String optionPrompt =
 PrintWriter epochLog;
 
 void setup() {
+  paramManager = new ParamManager();
   String fileName = String.format("simulation-%1$tF-%1$ts_%2$s", Calendar.getInstance(), (String)Parameters.EPOCH_FILE_POST.getValue());
   epochLog = createWriter(fileName);
   theEnvironment = new Environment();
+  globalRandom = (paramManager.getConfigs().deterministic)?new Random(paramManager.getConfigs().RNGSeed):new Random();
 
   colorMode(RGB, 255);
   background(255);
@@ -70,11 +77,11 @@ void setup() {
  */
 void draw() {
   // are we in a generation?
-  if (runMode == RunMode.RUN && generations < (int)Parameters.MAX_GENERATIONS.getValue()) {
+  if (runMode == RunMode.RUN && generations < paramManager.getParams().maxGenerations) {
     // are we in a simulation step?
     int tempSteps = 0;
-    if (simStep < (int)Parameters.STEPS_PER_GENERATION.getValue()) {
-      while (tempSteps++ < (int)Parameters.STEPS_PER_FRAME.getValue() && simStep < (int)Parameters.STEPS_PER_GENERATION.getValue()) {
+    if (simStep < paramManager.getParams().stepsPerGeneration) {
+      while (tempSteps++ < (int)Parameters.STEPS_PER_FRAME.getValue() && simStep < paramManager.getParams().stepsPerGeneration) {
         // Loop through each individual in parallel
         IntStream.range(0, theEnvironment.populationSize()).parallel().forEach(indivIndex -> {
           //for (int indivIndex = 0; indivIndex < theEnvironment.populationSize(); indivIndex++) {
@@ -169,6 +176,11 @@ public void display() {
 
 void keyPressed() {
   switch(key) {
+  case 'a':
+  case 'A':
+      if (runMode != RunMode.STOP && runMode != RunMode.PAUSE) break;
+      selectInput("Select the configuration file to load", "configFileSelected");
+      break;
   case 'b':
   case 'B':
     // Start the show with a random set of guys
@@ -267,15 +279,21 @@ void saveGeneration(int generation, String fileName) {
   System.out.println("...done");
 }
 
+void configFileSelected(File selection) {
+  if (selection == null) {
+    System.out.printf("No file was selected, moving on\n");
+  } else {
+    System.out.printf("User selected %s\n", selection.getAbsolutePath());
+    paramManager.registerConfigFile(selection);
+  }
+}
+
 void fileSelected(File selection) {
   if (selection == null) {
     System.out.printf("No file was selected, moving on\n");
   } else {
     System.out.printf("User selected %s\n", selection.getAbsolutePath());
-    //String creatureFile = "generation-164-2023-03-10-1678504779.bin";
-    //String creatureFile = "circle trained generation-10076-2023-03-09-1678415342.bin";
     // load the guys and start the show
-    // runMode = startSimulator("filename");
     toggleDisplay = true;
     runMode = startSimulator(selection);
   }
@@ -286,10 +304,6 @@ void barrierFileSelected(File selection) {
     System.out.printf("No file was selected, moving on\n");
   } else {
     System.out.printf("User selected %s for barriers\n", selection.getAbsolutePath());
-    //String creatureFile = "generation-164-2023-03-10-1678504779.bin";
-    //String creatureFile = "circle trained generation-10076-2023-03-09-1678415342.bin";
-    // load the guys and start the show
-    // runMode = startSimulator("filename");
     toggleDisplay = true;
     theEnvironment.getGrid().loadBarriers(selection.getAbsolutePath());
   }
@@ -365,6 +379,8 @@ int[] getRealLocation(Creature creature) {
  * due to unresolved bugs when threaded)
  */
 public RunMode startSimulator(File file) {
+  paramManager.updateFromConfigFile(0);
+  
   genTimer = System.currentTimeMillis();
   theEnvironment.getGrid().initialize((int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());
   theEnvironment.getSignals().initialize((int)Configuration.SIGNAL_LAYERS.getValue(), (int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());

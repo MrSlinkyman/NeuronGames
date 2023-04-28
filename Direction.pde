@@ -1,7 +1,5 @@
 class Direction {
   private Compass direction;
-  private float angle;
-  private PVector directionVector;
 
   /**
    * in the original code there was a "random8" function that randomized the Direction
@@ -10,7 +8,7 @@ class Direction {
    */
   Direction() {
     this(Compass.NORTH);
-    this.rotate(new Random().nextInt()%8);
+    this.rotate(globalRandom.nextInt()%8);
   }
 
   Direction (Compass c) {
