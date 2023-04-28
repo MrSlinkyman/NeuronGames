@@ -1,7 +1,7 @@
 import java.util.Random;
 import java.util.function.Consumer;
 
-class Coordinate {
+class Coordinate implements Comparable {
   private int x, y;
   private final int gridWidth=(int)Configuration.SIZE_X.getValue();
   private final int gridHeight = (int)Configuration.SIZE_Y.getValue();
@@ -28,6 +28,27 @@ class Coordinate {
   public Coordinate clone() {
     return new Coordinate(x, y);
   }
+
+  @Override
+    public int compareTo(Object otherObject) {
+    if (otherObject == null) {
+      throw new NullPointerException();
+    }
+    if (!(otherObject instanceof Coordinate)) {
+      throw new ClassCastException("Cannot compare a Coordinate object with a non-Coordinate object.");
+    }
+    Coordinate other = (Coordinate) otherObject;
+    int xDiff = Integer.compare(this.x, other.x);
+    
+    return (xDiff != 0)?xDiff : Integer.compare(this.y, other.y);
+  }
+
+
+  @Override
+    public int hashCode() {
+    return Objects.hash(x, y);
+  }
+
 
   @Override
     public boolean equals(Object obj) {

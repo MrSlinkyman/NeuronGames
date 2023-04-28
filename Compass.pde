@@ -23,13 +23,6 @@ enum Compass {
     this.y = y;
   }
 
-  //static Compass findByValue(int value) {
-  //  for (Compass c : Compass.values()) {
-  //    if (c.value == value) return c;
-  //  }
-  //  return null;
-  //}
-
   Compass findByAcronynm(String acronym) {
     for (Compass c : Compass.values()) {
       if (c.acronym == acronym) return c;

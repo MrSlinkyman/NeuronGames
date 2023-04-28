@@ -12,8 +12,33 @@ class Maze {
   MazeCell[][] grid;
   int cols, rows;
   int cellWidth, cellHeight;
-  Stack<MazeCell> mazeStack;
   MazeCell start, end;
+
+  Maze(String[] s) {
+  assert s != null && s.length > 0 :
+    String.format("Maze.fromString(%s) bad input");
+    List<List<MazeCell>> newGrid = new ArrayList<List<MazeCell>>();
+    rows = s.length;
+    for (int r = 0; r < s.length; r++) {
+      String[] rowData = s[r].split(",");
+    assert rowData != null && rowData.length > 0 :
+      String.format("tried to get row data, but it's bad: %s", s[r]);
+      cols = rowData.length;
+      newGrid.add(new ArrayList<MazeCell>());
+      for (int c = 0; c < rowData.length; c++) {
+        newGrid.get(r).add(new MazeCell(rowData[c]));
+      }
+    }
+
+    grid = new MazeCell[cols][rows];
+    for (int i = 0; i < cols; i++) {
+      for (int j = 0; j < rows; j++) {
+        grid[i][j] = newGrid.get(j).get(i);
+      }
+    }
+    start = grid[0][0];
+    end = grid[cols-1][rows-1];
+  }
 
   Maze(int c, int r) {
     this.cols = c;
@@ -25,11 +50,10 @@ class Maze {
         grid[i][j] = new MazeCell(i, j); // pass i, j, and w as arguments
       }
     }
-    mazeStack = new Stack<MazeCell>();
     // select random cells for start and end positions
     //start = grid[(int) random(cols)][0];
     //end = grid[(int) random(cols)][rows-1];
-    
+
     // Start upper left, end lower right
     start = grid[0][0];
     end = grid[cols-1][rows-1];
@@ -64,6 +88,8 @@ class Maze {
   }
 
   private void generateMaze() {
+    Stack<MazeCell> mazeStack;
+    mazeStack = new Stack<MazeCell>();
     boolean finished = false;
     MazeCell current = start;
     while (!finished) {
@@ -82,20 +108,49 @@ class Maze {
       }
     }
   }
+
+  public String toString() {
+    StringBuffer b = new StringBuffer();
+
+    boolean newLine = false;
+    for (int r = 0; r < rows; r++) {
+      if(newLine) b.append("\n");
+      newLine = true;
+      boolean comma = false;
+      for (int c = 0; c < cols; c++) {
+        if (comma) b.append(",");
+        b.append(getCell(c, r));
+        comma = true;
+      }
+    }
+    return b.toString();
+  }
 }
 
 static class MazeInstance {
   private static List<Maze> instances = new ArrayList<Maze>();
-  
-  public static Maze getInstance(){
-    assert instances.size() > 0 : String.format("No maze was initialized");
+
+  public static Maze getInstance() {
+    assert instances.size() > 0 :
+    String.format("No maze was initialized");
     return instances.get(0);
   }
 
-  public static Maze getInstance(NeuronGames n, int c, int r){
-    if(instances.size() == 0){
-      instances.add(n.new Maze(c,r));
-    } 
+  public static Maze getInstance(NeuronGames n, String[] s) {
+    if (instances.size() == 0) {
+      instances.add(n.new Maze(s));
+    }
     return instances.get(0);
+  }
+  
+  public static Maze getInstance(NeuronGames n, int c, int r) {
+    if (instances.size() == 0) {
+      instances.add(n.new Maze(c, r));
+    }
+    return instances.get(0);
+  }
+  
+  public static void reset(){
+    instances.clear();
   }
 }

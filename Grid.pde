@@ -1,4 +1,6 @@
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.ArrayList;
 import java.util.function.IntConsumer;
 
@@ -59,12 +61,14 @@ class Grid {
   }
 
   public Coordinate findEmptyLocation() {
-    return findEmptyLocation(2*(int)Configuration.POPULATION.getValue());
+    Set<Coordinate> visited = new TreeSet<Coordinate>();
+    return findEmptyLocation(2*(int)Configuration.POPULATION.getValue(), visited);
   }
-  private Coordinate findEmptyLocation(int iterationMax) {
+  private Coordinate findEmptyLocation(int iterationMax, Set<Coordinate> visited) {
     int maxX = data.length;
     int maxY = data[0].length;
-    if(iterationMax <= 0) assert false : "No empty locations!";
+    if (iterationMax <= 0) assert false :
+    "No empty locations!";
     if ((Challenge)Parameters.CHALLENGE.getValue() == Challenge.MAZE || (Challenge)Parameters.CHALLENGE.getValue() == Challenge.MAZE_FEAR) {
       // Creature should randomize near the start
       //maxX /= 2;
@@ -72,8 +76,13 @@ class Grid {
       maxX = (int)(maxX/BarrierType.MAZE.getArg(0)) - 2;
       maxY = (int)(maxY/BarrierType.MAZE.getArg(1)) - 1;
     }
-    Coordinate location = new Coordinate().randomize(maxX, maxY);
-    return isEmptyAt(location)?location:findEmptyLocation(--iterationMax);
+
+    Coordinate location;
+    do {
+      location = new Coordinate().randomize(maxX, maxY);
+    } while (!visited.add(location));
+
+    return isEmptyAt(location)?location:findEmptyLocation(--iterationMax, visited);
   }
   public boolean isInBounds(Coordinate loc) {
     return loc.getX() >= 0 && loc.getX() < getSizeX() && loc.getY() >= 0 && loc.getY() < getSizeY();
@@ -119,7 +128,7 @@ class Grid {
         // Calculate challenge space
         boolean showChallengeCell = false;
         color challengeCellColor = color(125);
-        
+
         if (toggleChallenge) {
           switch(challenge) {
           case CORNER_WEIGHTED:
@@ -597,6 +606,7 @@ class Grid {
         Build the maze and create barriers according to the maze information
          */
         Maze maze = MazeInstance.getInstance(NeuronGames.this, cols, rows);
+        System.out.println(maze);
         for (int i = 0; i < maze.getCols(); i++) {
           for (int j = 0; j < maze.getRows(); j++) {
             MazeCell cell = maze.getCell(i, j);
@@ -705,18 +715,29 @@ class Grid {
    */
   public boolean loadBarriers(String filename) {
     String[] barrierData = loadStrings(filename);
-    for (int y = 0; y < barrierData.length; y++) {
-      byte[] entries = barrierData[y].getBytes();
-      for (int x = 0; x < entries.length; x++) {
-        Coordinate location = new Coordinate(x, y);
-        char value = (char)entries[x];
-        if (isOccupiedAt(location)) {
-          // TODO there is a creature in this spot, make sure to kill it properly before just overwriting the value
-          // pseudo: tell environment that this creature is now gone
+    if ((BarrierType)Parameters.BARRIER_TYPE.getValue() == BarrierType.MAZE) {
+      MazeInstance.reset();
+      MazeInstance.getInstance(NeuronGames.this, barrierData);
+      gridDisplay = createGraphics(width, height);
+      gridDisplay.background(0);
+      challengeDisplay = createGraphics(width, height);
+      barrierLocations.clear();
+      createBarrier();
+    } else {
+      for (int y = 0; y < barrierData.length; y++) {
+        byte[] entries = barrierData[y].getBytes();
+        for (int x = 0; x < entries.length; x++) {
+          Coordinate location = new Coordinate(x, y);
+          char value = (char)entries[x];
+          if (isOccupiedAt(location)) {
+            // TODO there is a creature in this spot, make sure to kill it properly before just overwriting the value
+            // pseudo: tell environment that this creature is now gone
+          }
+          set(location, (value == '1')?GridState.BARRIER:GridState.EMPTY);
         }
-        set(location, (value == '1')?GridState.BARRIER:GridState.EMPTY);
       }
     }
+    displayInitialized = false;
     return true;
   }
 
@@ -726,13 +747,18 @@ class Grid {
     PrintWriter output = createWriter(fileName);
 
     // We have a maze, just need to save the barriers
-    for (int y = 0; y < data[0].length; y++) {
-      StringBuffer line = new StringBuffer();
-      for (int x = 0; x < data.length; x++) {
-        Coordinate gridLocation = new Coordinate(x, y);
-        line.append( isBarrierAt(gridLocation)?'1':'0');
+    if ((BarrierType)Parameters.BARRIER_TYPE.getValue() == BarrierType.MAZE) {
+      output.print(MazeInstance.getInstance());
+    } else {
+
+      for (int y = 0; y < data[0].length; y++) {
+        StringBuffer line = new StringBuffer();
+        for (int x = 0; x < data.length; x++) {
+          Coordinate gridLocation = new Coordinate(x, y);
+          line.append( isBarrierAt(gridLocation)?'1':'0');
+        }
+        output.println(line);
       }
-      output.println(line);
     }
 
     output.flush();
