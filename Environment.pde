@@ -13,7 +13,7 @@ class Environment {
   private int generationsWithNoSurvivors;
 
   // TODO: refactor to a getter/setter
-  public int[] genomeInitialRange = new int[]{(int)Configuration.GENOME_INITIAL_LENGTH_MIN.getValue(), (int)Configuration.GENOME_INITIAL_LENGTH_MAX.getValue()};
+  public int[] genomeInitialRange = new int[]{paramManager.getConfigs().genomeInitialLengthMin, paramManager.getConfigs().genomeInitialLengthMax};
 
   Environment(int[] genomeRange) {
     this();

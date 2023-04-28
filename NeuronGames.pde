@@ -383,13 +383,13 @@ public RunMode startSimulator(File file) {
   
   genTimer = System.currentTimeMillis();
   theEnvironment.getGrid().initialize((int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());
-  theEnvironment.getSignals().initialize((int)Configuration.SIGNAL_LAYERS.getValue(), (int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());
+  theEnvironment.getSignals().initialize(paramManager.getConfigs().signalLayers, (int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());
   theEnvironment.initialize();
   murderCount.set(0);
 
 
   if (file == null) {
-    theEnvironment.initializeGeneration0((int)Configuration.POPULATION.getValue());
+    theEnvironment.initializeGeneration0(paramManager.getConfigs().population);
   } else {
     theEnvironment.initializeGeneration0(file.getAbsolutePath());
   }

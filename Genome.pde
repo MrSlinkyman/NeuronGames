@@ -111,7 +111,7 @@ class Genome {
     genome.applyPointMutations();
     assert !genome.isEmpty() :
     String.format("Mutations produced empty genome");
-    assert genome.size() <= (int)Configuration.GENOME_MAX_LENGTH.getValue() :
+    assert genome.size() <= paramManager.getConfigs().genomeMaxLength :
     String.format("new genome is too big:%d", genome.size());
 
     copyGenes(genome.genes);
@@ -204,7 +204,7 @@ class Genome {
           }
           genes = newGenes;
         }
-      } else if (genes.length < (int)Configuration.GENOME_MAX_LENGTH.getValue()) {
+      } else if (genes.length < paramManager.getConfigs().genomeMaxLength) {
         // insertion
         int indexToInsert = rando.nextInt(genes.length);
         Gene[] newGenes = new Gene[genes.length + 1];

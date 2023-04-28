@@ -62,7 +62,7 @@ class Grid {
 
   public Coordinate findEmptyLocation() {
     Set<Coordinate> visited = new TreeSet<Coordinate>();
-    return findEmptyLocation(2*(int)Configuration.POPULATION.getValue(), visited);
+    return findEmptyLocation(2*paramManager.getConfigs().population, visited);
   }
   private Coordinate findEmptyLocation(int iterationMax, Set<Coordinate> visited) {
     int maxX = data.length;

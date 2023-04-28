@@ -141,8 +141,8 @@ class NeuralNet {
   }
 
   public void renumberNeurons(Map<Short, Node> nodeMap) {
-    assert nodeMap.size() <= (int)Configuration.MAX_NUMBER_NEURONS.getValue() :
-    String.format("NodeMap is too big: %d > %d", nodeMap.size(), (int)Configuration.MAX_NUMBER_NEURONS.getValue());
+    assert nodeMap.size() <= paramManager.getConfigs().maxNumberNeurons :
+    String.format("NodeMap is too big: %d > %d", nodeMap.size(), paramManager.getConfigs().maxNumberNeurons);
     int newNumber = 0;
     for (Map.Entry<Short, Node> entrySet : nodeMap.entrySet()) {
       Node node = entrySet.getValue();
@@ -230,11 +230,11 @@ class NeuralNet {
       int origSensorSource = connection.getSourceNumber();
       int origTargetSource = connection.getTargetNumber();
       connection.setSourceNumber((short)(connection.getSourceNumber() % ((NeuronType.NEURON == connection.getSource()) ?
-        (int)Configuration.MAX_NUMBER_NEURONS.getValue() :
+        paramManager.getConfigs().maxNumberNeurons :
         Sensor.values().length)));
 
       connection.setTargetNumber((short)(connection.getTargetNumber() % ((NeuronType.NEURON == connection.getTarget())?
-        (int)Configuration.MAX_NUMBER_NEURONS.getValue() :
+        paramManager.getConfigs().maxNumberNeurons :
         CreatureAction.values().length)));
 
       if (origSensorSource != connection.getSourceNumber())
@@ -259,7 +259,7 @@ class NeuralNet {
         Node node = nodeMap.get(connection.getTargetNumber());
         printFirst("    target:NEURON at%d node:%s\n", connection.getTargetNumber(), node);
         if (node == null) {
-          assert connection.getTargetNumber()>=0 && connection.getTargetNumber() < (int)Configuration.MAX_NUMBER_NEURONS.getValue():
+          assert connection.getTargetNumber()>=0 && connection.getTargetNumber() < paramManager.getConfigs().maxNumberNeurons:
           String.format("  targetNumber negative or too big:%d", connection.getTargetNumber());
           node = new Node();
           nodeMap.put(connection.getTargetNumber(), node);
@@ -278,7 +278,7 @@ class NeuralNet {
         Node node = nodeMap.get(connection.getSourceNumber());
         printFirst("    sensor:NEURON at:%d node:%s\n", connection.getSourceNumber(), node);
         if (node == null) {
-          assert connection.getSourceNumber()>= 0 && connection.getSourceNumber() < (int)Configuration.MAX_NUMBER_NEURONS.getValue():
+          assert connection.getSourceNumber()>= 0 && connection.getSourceNumber() < paramManager.getConfigs().maxNumberNeurons:
           String.format("negative or large sourceNumber:%d", connection.getSourceNumber());
           node = new Node();
           nodeMap.put(connection.getSourceNumber(), node);
@@ -323,8 +323,8 @@ class NeuralNet {
       Iterator<Map.Entry<Short, Node>> iter = nodeMap.entrySet().iterator();
       while (iter.hasNext()) {
         Map.Entry<Short, Node> entrySet = iter.next();
-        assert entrySet.getKey() < (int)Configuration.MAX_NUMBER_NEURONS.getValue() :
-        String.format("Found a node index too big:%d >= %d", entrySet.getKey(), (int)Configuration.MAX_NUMBER_NEURONS.getValue());
+        assert entrySet.getKey() < paramManager.getConfigs().maxNumberNeurons :
+        String.format("Found a node index too big:%d >= %d", entrySet.getKey(), paramManager.getConfigs().maxNumberNeurons);
         // We're looking for neurons with zero outputs, or neurons that feed itself
         // and nobody else:
         if (entrySet.getValue().numOutputs == entrySet.getValue().numSelfInputs) {  // could be 0
@@ -418,7 +418,7 @@ class NeuralNet {
     Gene[] myGenome = g.getGenome();
     System.out.printf("My Genome:%s\n", g);
     e.getGrid().initialize((int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());
-    e.getSignals().initialize((int)Configuration.SIGNAL_LAYERS.getValue(), (int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());
+    e.getSignals().initialize(paramManager.getConfigs().signalLayers, (int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());
     e.initialize();
     e.creatures.add(null);
     Creature creature = new Creature(0, new Coordinate(3, 5), g, e);
