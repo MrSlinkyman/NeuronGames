@@ -63,8 +63,8 @@ public enum Parameters {
     DELETION_RATIO(0.5d), // 0.0..1.0, default 0.5d
     SEXUAL_REPRODUCTION(true), // default true, determines if the sim should use 1 or 2 parents
     CHOOSE_PARENTS_BY_FITNESS(true), // default true
-    CHALLENGE(Challenge.MAZE_FEAR), // one of Challenge, default CORNER_WEIGHTED, fitness challenge
-    BARRIER_TYPE(BarrierType.MAZE), // one of BarrierType, default NONE
+    CHALLENGE(Challenge.CIRCLE_WEIGHTED), // one of Challenge, default CORNER_WEIGHTED, fitness challenge
+    BARRIER_TYPE(BarrierType.HORIZONTAL_BAR_CONSTANT), // one of BarrierType, default NONE
     INITIAL_NEURON_OUTPUT(0.5d), // default Neuron output, default 0.5d
     BOUNDARY_TYPE(BoundaryType.BOUNDED), // one of BoundaryType, default BOUNDED, INFINITE currently NOT SUPPORTED
 

@@ -106,7 +106,7 @@ void draw() {
       display();
     } else {
       simStep = 0;
-      List<Creature> survivors = theEnvironment.endOfGeneration(generations); 
+      List<Creature> survivors = theEnvironment.endOfGeneration(generations);
       int numberSurvivors = survivors.size();
       System.out.printf("Generation:%d: ", generations);
 
@@ -122,13 +122,15 @@ void draw() {
 
       storeHistory();
       display();
-      for(Creature c : survivors){
+      for (Creature c : survivors) {
         c.display(color(10, 250, 10));
       }
       if (generations > 0 && generations % (int)Parameters.GENOME_SAVE_STRIDE.getValue() == 0) saveGeneration(generations, String.format("autosave-generation-%2$d-%1$tF-%1$ts.bin", Calendar.getInstance(), generations));
     }
-  } else {
+  } else if (runMode != RunMode.PAUSE) {
     runMode = RunMode.STOP;
+  } else {
+    display();
   }
 }
 
@@ -178,9 +180,9 @@ void keyPressed() {
   switch(key) {
   case 'a':
   case 'A':
-      if (runMode != RunMode.STOP && runMode != RunMode.PAUSE) break;
-      selectInput("Select the configuration file to load", "configFileSelected");
-      break;
+    if (runMode != RunMode.STOP && runMode != RunMode.PAUSE) break;
+    selectInput("Select the configuration file to load", "configFileSelected");
+    break;
   case 'b':
   case 'B':
     // Start the show with a random set of guys
@@ -199,8 +201,8 @@ void keyPressed() {
     {
       // pause
       runMode = (runMode == RunMode.RUN)?RunMode.PAUSE:RunMode.RUN;
-      if (runMode == RunMode.RUN) loop();
-      else noLoop();
+      //if (runMode == RunMode.RUN) loop();
+      //else noLoop();
       break;
     }
   case 's':
@@ -221,7 +223,7 @@ void keyPressed() {
   case 'T':
     {
       // use this to toggle the display to allow the sim to run in the background without an update or run real time
-      if (runMode != RunMode.RUN) break;
+      //if (runMode != RunMode.RUN) break;
       toggleDisplay = !toggleDisplay;
       background(255);
       fill(0);
@@ -316,8 +318,8 @@ void mousePressed() {
     {
       if (RunMode.STOP != runMode) {
         runMode = (runMode == RunMode.RUN)?RunMode.PAUSE:RunMode.RUN;
-        if (runMode == RunMode.RUN) loop();
-        else noLoop();
+        //if (runMode == RunMode.RUN) loop();
+        //else noLoop();
       }
       break;
     }
@@ -380,7 +382,7 @@ int[] getRealLocation(Creature creature) {
  */
 public RunMode startSimulator(File file) {
   paramManager.updateFromConfigFile(0);
-  
+
   genTimer = System.currentTimeMillis();
   theEnvironment.getGrid().initialize((int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());
   theEnvironment.getSignals().initialize(paramManager.getConfigs().signalLayers, (int)Configuration.SIZE_X.getValue(), (int)Configuration.SIZE_Y.getValue());
